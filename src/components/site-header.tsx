@@ -11,7 +11,7 @@ export function SiteHeader() {
         <img
           src="/motor-sights-international-logo.png"
           alt="Motor Sights International"
-          className="h-7 w-auto"
+          className="h-auto w-16"
         />
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-foreground">{userName}</span>

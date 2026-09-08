@@ -13,7 +13,7 @@ export function StepIndicator({
   onStepClick: (index: number) => void
 }) {
   return (
-    <div className="flex w-full items-center overflow-x-auto p-1 sm:px-10 sm:pb-10">
+    <div className="flex w-full items-center p-1 sm:px-10 sm:pb-10">
       {steps.map((s, index) => {
         const isDone = index < currentStep
         const isCurrent = index === currentStep
@@ -38,7 +38,7 @@ export function StepIndicator({
               </button>
               <span
                 className={cn(
-                  'absolute top-full left-1/2 mt-1.5 hidden w-20 -translate-x-1/2 text-center text-[10px] leading-tight text-muted-foreground sm:line-clamp-2',
+                  'absolute top-full left-1/2 mt-1.5 hidden w-20 -translate-x-1/2 text-center text-[10px] leading-tight text-muted-foreground sm:line-clamp-4',
                   isCurrent && 'font-medium text-foreground',
                 )}
               >
