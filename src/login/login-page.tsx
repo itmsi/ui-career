@@ -32,6 +32,11 @@ export function LoginPage() {
     <div className="flex min-h-svh items-center justify-center bg-slate-200 p-4 dark:bg-neutral-900">
       <div className="w-full max-w-md space-y-6">
         <div className="space-y-2 text-center">
+          <img
+            src="/motor-sights-international-logo.png"
+            alt="Motor Sights International"
+            className="mx-auto h-14 w-auto"
+          />
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Sign in to your account
           </h1>

@@ -45,14 +45,3 @@ See [.env.example](.env.example) for the full list. Copy it to `.env.local` befo
 | Variable              | Description                |
 | ---------------------- | --------------------------- |
 | `VITE_API_BASE_URL`     | Base URL of the backend API |
-
-## Project Structure
-
-```
-src/
-  applicant-form/   # Applicant form page
-  login/            # Login page (not currently wired into routes)
-  components/ui/    # shadcn/ui components
-  lib/              # Shared utilities
-  routes.tsx         # App routes
-```
