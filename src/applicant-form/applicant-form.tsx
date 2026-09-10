@@ -17,7 +17,9 @@ import { useFieldArray, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { ApiError } from '@/lib/api-client'
 
+import { submitApplicantForm } from './api'
 import { SectionHeading } from './components/section-heading'
 import { StepIndicator } from './components/step-indicator'
 import { DRAFT_STORAGE_KEY, STEP_STORAGE_KEY, loadDraftStep, loadDraftValues } from './form-utils'
@@ -38,7 +40,7 @@ import {
   type ApplicantFormValues,
 } from './types'
 
-export function ApplicantForm() {
+export function ApplicantForm({ token }: { token: string }) {
   const {
     register,
     control,
@@ -46,11 +48,13 @@ export function ApplicantForm() {
     trigger,
     watch,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ApplicantFormValues>({
     defaultValues: loadDraftValues(),
     mode: 'onSubmit',
   })
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitted, setSubmitted] = useState(false)
   const informalEducationArray = useFieldArray({ control, name: 'informalEducation' })
   const workExperienceArray = useFieldArray({ control, name: 'workExperience' })
   const referencesArray = useFieldArray({ control, name: 'references' })
@@ -82,8 +86,19 @@ export function ApplicantForm() {
     }
   }, [step])
 
-  const onSubmit = (data: ApplicantFormValues) => {
-    console.log('Applicant form submitted:', data)
+  const onSubmit = async (data: ApplicantFormValues) => {
+    setSubmitError(null)
+    try {
+      await submitApplicantForm(token, data)
+    } catch (error) {
+      setSubmitError(
+        error instanceof ApiError
+          ? error.message
+          : 'Gagal mengirim lamaran. Silakan coba lagi.',
+      )
+      return
+    }
+
     try {
       window.localStorage.removeItem(DRAFT_STORAGE_KEY)
       window.localStorage.removeItem(STEP_STORAGE_KEY)
@@ -92,6 +107,7 @@ export function ApplicantForm() {
     }
     reset(defaultValues)
     setStep(0)
+    setSubmitted(true)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -219,6 +235,22 @@ export function ApplicantForm() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  if (submitted) {
+    return (
+      <div className="mx-auto w-full max-w-md p-4 sm:p-6">
+        <Card className="border-l-4 border-l-primary shadow-2xl shadow-black/10">
+          <CardHeader className="px-8 py-6">
+            <CardTitle>Lamaran Terkirim</CardTitle>
+            <CardDescription>
+              Terima kasih, lamaran Anda sudah kami terima. Tim kami akan menghubungi Anda
+              apabila diperlukan.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
       <Card className="border-l-4 border-l-primary shadow-2xl shadow-black/10">
@@ -250,6 +282,12 @@ export function ApplicantForm() {
           <CardContent className="p-8">{current.content}</CardContent>
         </Card>
 
+        {submitError ? (
+          <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+            {submitError}
+          </p>
+        ) : null}
+
         <div className="flex items-center justify-between gap-2 rounded-xl border bg-background/85 p-3 shadow-lg backdrop-blur">
           <Button
             type="button"
@@ -266,9 +304,9 @@ export function ApplicantForm() {
                 <Printer className="size-4" />
                 Cetak / Print
               </Button>
-              <Button type="submit">
+              <Button type="submit" disabled={isSubmitting}>
                 <Send className="size-4" />
-                Kirim Lamaran
+                {isSubmitting ? 'Mengirim...' : 'Kirim Lamaran'}
               </Button>
             </div>
           ) : (
