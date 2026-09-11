@@ -46,13 +46,7 @@ export function ApplicantFormPage() {
 
   return (
     <div className="mx-auto w-full max-w-md p-4 sm:p-6">
-      <Card
-        className={
-          state.status === 'invalid'
-            ? 'border-l-4 border-l-destructive shadow-2xl shadow-black/10'
-            : 'border-l-4 border-l-primary shadow-2xl shadow-black/10'
-        }
-      >
+      <Card blueprint className={state.status === 'invalid' ? 'border-destructive/50' : undefined}>
         <CardHeader className="px-8 py-6">
           <CardTitle>
             {state.status === 'loading' ? 'Memeriksa Link Undangan...' : 'Link Tidak Valid'}

@@ -1,27 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import {
-  Award,
-  Briefcase,
-  ClipboardCheck,
-  Contact,
-  FileSignature,
-  GraduationCap,
-  Printer,
-  Send,
-  ShieldQuestion,
-  UserRound,
-  UsersRound,
-  type LucideIcon,
-} from 'lucide-react'
+import { format } from 'date-fns'
+import { Printer, Send } from 'lucide-react'
 import { useFieldArray, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 import { ApiError } from '@/lib/api-client'
 
 import { submitApplicantForm } from './api'
-import { SectionHeading } from './components/section-heading'
-import { StepIndicator } from './components/step-indicator'
+import { FormNav } from './components/form-nav'
 import { DRAFT_STORAGE_KEY, STEP_STORAGE_KEY, loadDraftStep, loadDraftValues } from './form-utils'
 import { ApplicantInformationSection } from './sections/applicant-information'
 import { CertificationSection } from './sections/certification'
@@ -59,6 +47,9 @@ export function ApplicantForm({ token }: { token: string }) {
   const workExperienceArray = useFieldArray({ control, name: 'workExperience' })
   const referencesArray = useFieldArray({ control, name: 'references' })
   const [step, setStep] = useState(loadDraftStep)
+  const [navMode, setNavMode] = useState<'rail' | 'bar'>('rail')
+  const [navCollapsed, setNavCollapsed] = useState(false)
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -67,6 +58,7 @@ export function ApplicantForm({ token }: { token: string }) {
       saveTimeoutRef.current = setTimeout(() => {
         try {
           window.localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(values))
+          setLastSavedAt(new Date())
         } catch {
           // ignore write failures (private browsing / storage full)
         }
@@ -116,13 +108,11 @@ export function ApplicantForm({ token }: { token: string }) {
   const steps: Array<{
     title: string
     description: string
-    icon: LucideIcon
     content: React.ReactNode
   }> = [
     {
       title: 'Applicant Information',
       description: 'Informasi Pelamar',
-      icon: UserRound,
       content: (
         <ApplicantInformationSection
           register={register}
@@ -134,13 +124,11 @@ export function ApplicantForm({ token }: { token: string }) {
     {
       title: 'Educational Background',
       description: 'Latar Belakang Pendidikan',
-      icon: GraduationCap,
       content: <EducationalBackgroundSection register={register} />,
     },
     {
       title: 'Informal Education and Special Qualification',
       description: 'Pendidikan Informal dan Keterampilan Khusus',
-      icon: Award,
       content: (
         <InformalEducationSection
           register={register}
@@ -153,13 +141,11 @@ export function ApplicantForm({ token }: { token: string }) {
     {
       title: 'Family Background',
       description: 'Latar Belakang Keluarga',
-      icon: UsersRound,
       content: <FamilyBackgroundSection register={register} />,
     },
     {
       title: 'Working Experiences',
       description: 'Pengalaman Kerja',
-      icon: Briefcase,
       content: (
         <WorkingExperiencesSection
           register={register}
@@ -174,7 +160,6 @@ export function ApplicantForm({ token }: { token: string }) {
       title: 'References',
       description:
         'Please list at least two references (HR & User) — Sebutkan sedikitnya dua orang referensi (HR & Atasan Langsung)',
-      icon: Contact,
       content: (
         <ReferencesSection
           register={register}
@@ -187,20 +172,17 @@ export function ApplicantForm({ token }: { token: string }) {
     {
       title: 'Please select one of the following answers',
       description: 'Silahkan pilih salah satu jawaban dari pertanyaan berikut',
-      icon: ShieldQuestion,
       content: <ScreeningQuestionsSection control={control} />,
     },
     {
       title: 'Certification',
       description:
         'I certified that that all answer given herein are true and complete to the best of my knowledge',
-      icon: FileSignature,
       content: <CertificationSection register={register} control={control} />,
     },
     {
       title: 'Review & Ringkasan',
       description: 'Periksa kembali seluruh data sebelum mengirim lamaran',
-      icon: ClipboardCheck,
       content: <SummarySection values={reviewValues} />,
     },
   ]
@@ -238,7 +220,7 @@ export function ApplicantForm({ token }: { token: string }) {
   if (submitted) {
     return (
       <div className="mx-auto w-full max-w-md p-4 sm:p-6">
-        <Card className="border-l-4 border-l-primary shadow-2xl shadow-black/10">
+        <Card blueprint>
           <CardHeader className="px-8 py-6">
             <CardTitle>Lamaran Terkirim</CardTitle>
             <CardDescription>
@@ -252,70 +234,119 @@ export function ApplicantForm({ token }: { token: string }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
-      <Card className="border-l-4 border-l-primary shadow-2xl shadow-black/10">
-        <CardHeader className="px-4 pt-4 sm:px-6">
-          <p className="text-xs font-semibold tracking-wide text-primary uppercase">
-            Careers at Motor Sights International
-          </p>
-          <CardTitle className="text-xl sm:text-2xl">Applicant Form</CardTitle>
-          <CardDescription>Formulir Lamaran Pekerjaan</CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 sm:p-6">
-          <StepIndicator
+    <div className="mx-auto w-full">
+      <Card className="gap-0 overflow-hidden py-0 [--card-spacing:0px]">
+        <div className="flex items-center justify-between gap-4 border-b border-border bg-muted/40 px-4 py-2.5">
+          <span className="font-mono text-[10px] tracking-[0.16em] text-muted-foreground/70 uppercase">
+            Step indicator
+          </span>
+          <div className="flex items-center gap-2.5">
+            <div className="flex border border-border">
+              <button
+                type="button"
+                onClick={() => setNavMode('rail')}
+                className={cn(
+                  'px-3 py-1 font-heading text-xs font-semibold tracking-wide uppercase transition-colors',
+                  navMode === 'rail'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground hover:bg-muted',
+                )}
+              >
+                Sidebar
+              </button>
+              <button
+                type="button"
+                onClick={() => setNavMode('bar')}
+                className={cn(
+                  'border-l border-border px-3 py-1 font-heading text-xs font-semibold tracking-wide uppercase transition-colors',
+                  navMode === 'bar'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-foreground hover:bg-muted',
+                )}
+              >
+                Horizontal
+              </button>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setNavCollapsed((c) => !c)}
+            >
+              {navCollapsed ? 'Expand indicator' : 'Minimise indicator'}
+            </Button>
+          </div>
+        </div>
+
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className={cn('flex', navMode === 'rail' ? 'flex-col lg:flex-row' : 'flex-col')}
+        >
+          <FormNav
             steps={steps}
             currentStep={step}
             onStepClick={handleStepClick}
+            mode={navMode}
+            collapsed={navCollapsed}
           />
-        </CardContent>
-      </Card>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <Card className="border-l-4 border-l-primary shadow-2xl shadow-black/10">
-          <CardHeader className="px-8 mt-4">
-            <SectionHeading
-              icon={current.icon}
-              title={current.title}
-              description={current.description}
-            />
-          </CardHeader>
-          <CardContent className="p-8">{current.content}</CardContent>
-        </Card>
+          <div className="flex min-w-0 flex-1 flex-col px-6 py-8 sm:px-10 sm:py-10">
+            <span className="font-mono text-xs font-medium tracking-[0.18em] text-primary uppercase">
+              Step {String(step + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
+            </span>
+            <CardTitle className="mt-3 mb-1.5 text-[32px] leading-[0.98] sm:text-[44px]">
+              {current.title}
+            </CardTitle>
+            {current.description && (
+              <CardDescription className="mb-7 max-w-[58ch] text-[13px] leading-relaxed">
+                {current.description}
+              </CardDescription>
+            )}
 
-        {submitError ? (
-          <p className="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-            {submitError}
-          </p>
-        ) : null}
+            <div className="flex-1">{current.content}</div>
 
-        <div className="flex items-center justify-between gap-2 rounded-xl border bg-background/85 p-3 shadow-lg backdrop-blur">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleBack}
-            disabled={isFirstStep}
-          >
-            Kembali
-          </Button>
+            {submitError ? (
+              <p className="mt-6 border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                {submitError}
+              </p>
+            ) : null}
 
-          {isLastStep ? (
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={() => window.print()}>
-                <Printer className="size-4" />
-                Cetak / Print
+            <div className="mt-8 flex items-center justify-between gap-3 border-t border-foreground pt-5">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBack}
+                disabled={isFirstStep}
+              >
+                Kembali
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                <Send className="size-4" />
-                {isSubmitting ? 'Mengirim...' : 'Kirim Lamaran'}
-              </Button>
+
+              <div className="flex items-center gap-4">
+                <span className="hidden font-mono text-[11px] text-muted-foreground/70 uppercase sm:inline">
+                  {lastSavedAt ? `Tersimpan ${format(lastSavedAt, 'HH:mm')}` : 'Draf belum tersimpan'}
+                </span>
+
+                {isLastStep ? (
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => window.print()}>
+                      <Printer className="size-4" />
+                      Cetak / Print
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      <Send className="size-4" />
+                      {isSubmitting ? 'Mengirim...' : 'Kirim Lamaran'}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button type="button" onClick={handleNext}>
+                    Lanjut
+                  </Button>
+                )}
+              </div>
             </div>
-          ) : (
-            <Button type="button" onClick={handleNext}>
-              Lanjut
-            </Button>
-          )}
-        </div>
-      </form>
+          </div>
+        </form>
+      </Card>
     </div>
   )
 }

@@ -3,7 +3,7 @@ import { format, isValid, parseISO } from 'date-fns'
 import { defaultValues, type ApplicantFormValues, type YesNo } from './types'
 
 export const captionLabelClass =
-  'text-[11px] font-semibold tracking-wide text-muted-foreground'
+  'font-heading text-[11.5px] font-semibold tracking-[0.08em] text-foreground/75 uppercase'
 export const inputHeightClass = 'h-10 rounded-lg'
 
 export const EDUCATION_ROWS: Array<{
