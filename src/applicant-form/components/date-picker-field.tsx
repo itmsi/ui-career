@@ -67,7 +67,7 @@ function DatePickerButton({
             id={id}
             className={cn(
               inputHeightClass,
-              'flex w-full items-center justify-between gap-2 border border-input bg-transparent px-2.5 text-left text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30',
+              'flex w-full items-center justify-between gap-2 border border-input bg-muted/50 px-2.5 text-left text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30',
               !selectedDate && 'text-muted-foreground',
               className,
             )}

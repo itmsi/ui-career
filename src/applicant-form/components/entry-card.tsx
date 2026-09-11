@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Trash2 } from 'lucide-react'
 
+import { BlueprintCorners } from '@/components/ui/blueprint-corners'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -25,13 +26,14 @@ export function EntryCard({
         : 'sm:grid-cols-2 lg:grid-cols-3'
 
   return (
-    <div className="rounded-xl border border-border/70 bg-muted/20 p-4 transition-colors hover:border-border hover:bg-muted/30">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-semibold text-primary-foreground">
-            {index}
+    <div className="blueprint relative border border-border p-4 transition-colors hover:border-foreground/40">
+      <BlueprintCorners />
+      <div className="mb-3 flex items-center justify-between gap-2 border-b border-border pb-2.5">
+        <div className="flex items-baseline gap-2.5">
+          <span className="font-mono text-[11px] font-semibold tracking-[0.1em] text-primary">
+            {String(index).padStart(2, '0')}
           </span>
-          <p className="text-sm font-medium">{label}</p>
+          <p className="font-heading text-sm font-semibold tracking-wide uppercase">{label}</p>
         </div>
         {onRemove && (
           <Button
