@@ -4,7 +4,7 @@ import { ApplicantFormPage } from '@/applicant-form/applicant-form-page'
 
 function ApplicantFormLayout() {
   return (
-    <div className="h-full bg-background">
+    <div className="h-svh overflow-hidden bg-background">
       <ApplicantFormPage />
     </div>
   )

@@ -219,8 +219,8 @@ export function ApplicantForm({ token }: { token: string }) {
 
   if (submitted) {
     return (
-      <div className="mx-auto w-full max-w-md p-4 sm:p-6">
-        <Card blueprint>
+      <div className="mx-auto flex h-svh w-full max-w-md items-center p-4 sm:p-6">
+        <Card className="w-full">
           <CardHeader className="px-8 py-6">
             <CardTitle>Lamaran Terkirim</CardTitle>
             <CardDescription>
@@ -234,64 +234,24 @@ export function ApplicantForm({ token }: { token: string }) {
   }
 
   return (
-    <div className="mx-auto w-full">
-      <Card className="gap-0 overflow-hidden py-0 [--card-spacing:0px]">
-        <div className="flex items-center justify-between gap-4 border-b border-border bg-muted/40 px-4 py-2.5">
-          <span className="font-mono text-[10px] tracking-[0.16em] text-muted-foreground/70 uppercase">
-            Step indicator
-          </span>
-          <div className="flex items-center gap-2.5">
-            <div className="flex border border-border">
-              <button
-                type="button"
-                onClick={() => setNavMode('rail')}
-                className={cn(
-                  'px-3 py-1 font-heading text-xs font-semibold tracking-wide uppercase transition-colors',
-                  navMode === 'rail'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-muted',
-                )}
-              >
-                Sidebar
-              </button>
-              <button
-                type="button"
-                onClick={() => setNavMode('bar')}
-                className={cn(
-                  'border-l border-border px-3 py-1 font-heading text-xs font-semibold tracking-wide uppercase transition-colors',
-                  navMode === 'bar'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-muted',
-                )}
-              >
-                Horizontal
-              </button>
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setNavCollapsed((c) => !c)}
-            >
-              {navCollapsed ? 'Expand indicator' : 'Minimise indicator'}
-            </Button>
-          </div>
-        </div>
+    <div className="flex h-svh flex-col overflow-hidden bg-background">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={cn('flex min-h-0 flex-1 flex-col', navMode === 'rail' && 'lg:flex-row')}
+      >
+        <FormNav
+          steps={steps}
+          currentStep={step}
+          onStepClick={handleStepClick}
+          mode={navMode}
+          collapsed={navCollapsed}
+          onModeChange={setNavMode}
+          onToggleCollapse={() => setNavCollapsed((c) => !c)}
+        />
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className={cn('flex', navMode === 'rail' ? 'flex-col lg:flex-row' : 'flex-col')}
-        >
-          <FormNav
-            steps={steps}
-            currentStep={step}
-            onStepClick={handleStepClick}
-            mode={navMode}
-            collapsed={navCollapsed}
-          />
-
-          <div className="flex min-w-0 flex-1 flex-col px-6 py-8 sm:px-10 sm:py-10">
-            <span className="font-mono text-xs font-medium tracking-[0.18em] text-primary uppercase">
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto px-6 py-8 sm:px-10 sm:py-10">
+            <span className="text-xs font-semibold text-primary">
               Step {String(step + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
             </span>
             <CardTitle className="mt-3 mb-1.5 text-[32px] leading-[0.98] sm:text-[44px]">
@@ -303,15 +263,17 @@ export function ApplicantForm({ token }: { token: string }) {
               </CardDescription>
             )}
 
-            <div className="flex-1">{current.content}</div>
+            {current.content}
 
             {submitError ? (
               <p className="mt-6 border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
                 {submitError}
               </p>
             ) : null}
+          </div>
 
-            <div className="mt-8 flex items-center justify-between gap-3 border-t border-foreground pt-5">
+          <div className="shrink-0 border-t border-border px-6 py-5 sm:px-10">
+            <div className="flex items-center justify-between gap-3">
               <Button
                 type="button"
                 variant="outline"
@@ -322,7 +284,7 @@ export function ApplicantForm({ token }: { token: string }) {
               </Button>
 
               <div className="flex items-center gap-4">
-                <span className="hidden font-mono text-[11px] text-muted-foreground/70 uppercase sm:inline">
+                <span className="hidden text-[11px] font-semibold text-muted-foreground/70 sm:inline">
                   {lastSavedAt ? `Tersimpan ${format(lastSavedAt, 'HH:mm')}` : 'Draf belum tersimpan'}
                 </span>
 
@@ -345,8 +307,8 @@ export function ApplicantForm({ token }: { token: string }) {
               </div>
             </div>
           </div>
-        </form>
-      </Card>
+        </main>
+      </form>
     </div>
   )
 }
