@@ -8,7 +8,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { cn } from '@/lib/utils'
 import { ApiError } from '@/lib/api-client'
 
-import { submitApplicantForm } from './api'
+import { submitApplicantForm, type InvitationVerifyResponse } from './api'
 import { FormNav } from './components/form-nav'
 import { DRAFT_STORAGE_KEY, STEP_STORAGE_KEY, loadDraftStep, loadDraftValues } from './form-utils'
 import { ApplicantInformationSection } from './sections/applicant-information'
@@ -28,7 +28,13 @@ import {
   type ApplicantFormValues,
 } from './types'
 
-export function ApplicantForm({ token }: { token: string }) {
+export function ApplicantForm({
+  token,
+  invitation,
+}: {
+  token: string
+  invitation: InvitationVerifyResponse
+}) {
   const {
     register,
     control,
@@ -38,7 +44,14 @@ export function ApplicantForm({ token }: { token: string }) {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<ApplicantFormValues>({
-    defaultValues: loadDraftValues(),
+    defaultValues: {
+      ...loadDraftValues(),
+      // Identity fields come from the invitation, not the applicant, so they always
+      // win over whatever a stale local draft happened to have.
+      ...(invitation.full_name ? { fullName: invitation.full_name } : {}),
+      ...(invitation.email ? { email: invitation.email } : {}),
+      ...(invitation.no_mobile ? { mobile: invitation.no_mobile } : {}),
+    },
     mode: 'onSubmit',
   })
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -193,7 +206,7 @@ export function ApplicantForm({ token }: { token: string }) {
 
   async function validateCurrentStep() {
     if (step === 0) {
-      return trigger(['fullName', 'email'])
+      return trigger(['fullName', 'email', 'workingAvailableDate'])
     }
     return true
   }

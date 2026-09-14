@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import { format, isValid, parseISO } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
-import { Controller, type Control, type FieldPath } from 'react-hook-form'
+import {
+  Controller,
+  type Control,
+  type FieldPath,
+  type RegisterOptions,
+} from 'react-hook-form'
 
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -16,25 +21,33 @@ export function DatePickerField({
   placeholder = 'Pilih tanggal',
   className,
   id,
+  rules,
 }: {
   name: FieldPath<ApplicantFormValues>
   control: Control<ApplicantFormValues>
   placeholder?: string
   className?: string
   id?: string
+  rules?: RegisterOptions<ApplicantFormValues, typeof name>
 }) {
   return (
     <Controller
       control={control}
       name={name}
-      render={({ field }) => (
-        <DatePickerButton
-          id={id}
-          placeholder={placeholder}
-          className={className}
-          value={typeof field.value === 'string' ? field.value : ''}
-          onChange={field.onChange}
-        />
+      rules={rules}
+      render={({ field, fieldState }) => (
+        <div className={cn('flex flex-col gap-1.5', className)}>
+          <DatePickerButton
+            id={id}
+            placeholder={placeholder}
+            className={cn(fieldState.error && 'border-destructive')}
+            value={typeof field.value === 'string' ? field.value : ''}
+            onChange={field.onChange}
+          />
+          {fieldState.error && (
+            <p className="text-sm font-normal text-destructive">{fieldState.error.message}</p>
+          )}
+        </div>
       )}
     />
   )

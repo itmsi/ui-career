@@ -4,14 +4,24 @@ import { EDUCATION_ROWS, FAMILY_ROWS, SCREENING_QUESTIONS, yesNoLabel } from './
 import type { ApplicantFormValues } from './types'
 
 export type InvitationVerifyResponse = {
-  valid?: boolean
-  message?: string
+  id: string
+  full_name: string
+  email: string
+  no_mobile: string
 }
 
-export function verifyApplicantInvitation(token: string) {
-  return apiRequest<InvitationVerifyResponse>(
+type InvitationVerifyApiResponse = {
+  success: boolean
+  message: string
+  data: InvitationVerifyResponse
+  timestamp: string
+}
+
+export async function verifyApplicantInvitation(token: string) {
+  const response = await apiRequest<InvitationVerifyApiResponse>(
     `/applicant-invitations/verify/${encodeURIComponent(token)}`,
   )
+  return response.data
 }
 
 export function submitApplicantForm(token: string, values: ApplicantFormValues) {

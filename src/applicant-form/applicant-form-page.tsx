@@ -5,12 +5,12 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { cn } from '@/lib/utils'
 
 import { ApplicantForm } from './applicant-form'
-import { verifyApplicantInvitation } from './api'
+import { verifyApplicantInvitation, type InvitationVerifyResponse } from './api'
 
 type VerificationState =
   | { status: 'loading' }
   | { status: 'invalid'; message: string }
-  | { status: 'valid' }
+  | { status: 'valid'; invitation: InvitationVerifyResponse }
 
 export function ApplicantFormPage() {
   const { token } = useParams<{ token: string }>()
@@ -26,8 +26,8 @@ export function ApplicantFormPage() {
     setState({ status: 'loading' })
 
     verifyApplicantInvitation(token)
-      .then(() => {
-        if (!cancelled) setState({ status: 'valid' })
+      .then((invitation) => {
+        if (!cancelled) setState({ status: 'valid', invitation })
       })
       .catch((error: unknown) => {
         if (cancelled) return
@@ -42,7 +42,7 @@ export function ApplicantFormPage() {
   }, [token])
 
   if (state.status === 'valid') {
-    return <ApplicantForm token={token!} />
+    return <ApplicantForm token={token!} invitation={state.invitation} />
   }
 
   return (

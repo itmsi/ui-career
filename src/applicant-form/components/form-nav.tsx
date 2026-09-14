@@ -151,7 +151,7 @@ export function FormNav({
     return (
       <div className="relative flex w-full shrink-0 flex-col gap-7 overflow-y-auto bg-sidebar px-6 py-7 text-sidebar-foreground transition-[width] duration-[220ms] ease-out lg:w-[320px]">
         {controls}
-        <div className="flex items-center gap-2.5 pr-[86px]">
+        <div className="flex justify-center items-center gap-2.5">
           <img
             src="/motor-sights-international-logo-white.svg"
             alt="Motor Sights International"
