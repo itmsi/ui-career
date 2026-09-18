@@ -233,6 +233,9 @@ function SignaturePadDialog({
           <SignatureCanvas
             ref={sigRef}
             penColor="black"
+            minWidth={3}
+            maxWidth={3}
+            velocityFilterWeight={1}
             canvasProps={{ className: 'h-56 w-full touch-none' }}
           />
         </div>
