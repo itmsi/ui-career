@@ -1,3 +1,4 @@
+import { format } from 'date-fns'
 import type { UseFormRegister } from 'react-hook-form'
 
 export type EducationRow = {
@@ -88,6 +89,7 @@ export type ApplicantFormValues = {
   hasUsedDrugs: YesNo
   willingToRelocate: YesNo
   applicantSignature: string
+  signatureLink: string
   signatureDate: string
 }
 
@@ -174,5 +176,6 @@ export const defaultValues: ApplicantFormValues = {
   hasUsedDrugs: '',
   willingToRelocate: '',
   applicantSignature: '',
-  signatureDate: '',
+  signatureLink: '',
+  signatureDate: format(new Date(), 'yyyy-MM-dd'),
 }

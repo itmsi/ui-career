@@ -1,35 +1,36 @@
 import type { Control } from 'react-hook-form'
 
 import { Field, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
 
 import { DatePickerField } from '../components/date-picker-field'
-import { captionLabelClass, inputHeightClass } from '../form-utils'
-import type { ApplicantFormValues, RegisterFn } from '../types'
+import { SignaturePadField } from '../components/signature-pad-field'
+import { captionLabelClass } from '../form-utils'
+import type { ApplicantFormValues } from '../types'
 
-export function CertificationSection({
-  register,
+export function SignatureSection({
   control,
+  token,
 }: {
-  register: RegisterFn
   control: Control<ApplicantFormValues>
+  token: string
 }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
-      <Field>
+    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+      <Field className="sm:col-span-2">
         <FieldLabel htmlFor="applicantSignature" className={captionLabelClass}>
           Signature of Applicant/ Tanda tangan pelamar
         </FieldLabel>
-        <Input
-          id="applicantSignature"
-          placeholder="Ketik nama lengkap sebagai tanda tangan"
-          className={inputHeightClass}
-          {...register('applicantSignature')}
+        <SignaturePadField
+          name="applicantSignature"
+          linkName="signatureLink"
+          dateName="signatureDate"
+          control={control}
+          token={token}
         />
       </Field>
       <Field>
         <FieldLabel htmlFor="signatureDate" className={captionLabelClass}>
-          Date /Tanggal
+          Signature Date /Tanggal Tanda Tangan  
         </FieldLabel>
         <DatePickerField id="signatureDate" name="signatureDate" control={control} />
       </Field>

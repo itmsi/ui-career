@@ -12,12 +12,12 @@ import { submitApplicantForm, type InvitationVerifyResponse } from './api'
 import { FormNav } from './components/form-nav'
 import { DRAFT_STORAGE_KEY, STEP_STORAGE_KEY, loadDraftStep, loadDraftValues } from './form-utils'
 import { ApplicantInformationSection } from './sections/applicant-information'
-import { CertificationSection } from './sections/certification'
 import { EducationalBackgroundSection } from './sections/educational-background'
 import { FamilyBackgroundSection } from './sections/family-background'
 import { InformalEducationSection } from './sections/informal-education'
 import { ReferencesSection } from './sections/references'
 import { ScreeningQuestionsSection } from './sections/screening-questions'
+import { SignatureSection } from './sections/signature'
 import { SummarySection } from './sections/summary'
 import { WorkingExperiencesSection } from './sections/working-experiences'
 import {
@@ -188,10 +188,10 @@ export function ApplicantForm({
       content: <ScreeningQuestionsSection control={control} />,
     },
     {
-      title: 'Certification',
+      title: 'Signature',
       description:
         'I certified that that all answer given herein are true and complete to the best of my knowledge',
-      content: <CertificationSection register={register} control={control} />,
+      content: <SignatureSection control={control} token={token} />,
     },
     {
       title: 'Review & Ringkasan',

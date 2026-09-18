@@ -10,10 +10,10 @@ export const EDUCATION_ROWS: Array<{
   label: string
   typeOfSchool: string
 }> = [
-  { key: 'university', label: 'University/ Universitas', typeOfSchool: 'university' },
-  { key: 'highSchool', label: 'High School/ SMA', typeOfSchool: 'high_school' },
-  { key: 'juniorSchool', label: 'Junior School/ SMP', typeOfSchool: 'junior_school' },
-  { key: 'elementarySchool', label: 'Elementary School/ SD', typeOfSchool: 'elementary_school' },
+  { key: 'university', label: 'University/ Universitas', typeOfSchool: 'universitas' },
+  { key: 'highSchool', label: 'High School/ SMA', typeOfSchool: 'sma' },
+  { key: 'juniorSchool', label: 'Junior School/ SMP', typeOfSchool: 'smp' },
+  { key: 'elementarySchool', label: 'Elementary School/ SD', typeOfSchool: 'sd' },
 ]
 
 export const FAMILY_ROWS: Array<{
