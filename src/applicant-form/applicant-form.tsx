@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
-import { Printer, Send } from 'lucide-react'
+import { Send } from 'lucide-react'
 import { useFieldArray, useForm } from 'react-hook-form'
 
 import { Button } from '@/components/ui/button'
@@ -302,16 +302,10 @@ export function ApplicantForm({
                 </span>
 
                 {isLastStep ? (
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => window.print()}>
-                      <Printer className="size-4" />
-                      Cetak / Print
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting}>
-                      <Send className="size-4" />
-                      {isSubmitting ? 'Mengirim...' : 'Kirim Lamaran'}
-                    </Button>
-                  </div>
+                  <Button type="submit" disabled={isSubmitting}>
+                    <Send className="size-4" />
+                    {isSubmitting ? 'Mengirim...' : 'Kirim Lamaran'}
+                  </Button>
                 ) : (
                   <Button type="button" onClick={handleNext}>
                     Lanjut
