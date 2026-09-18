@@ -88,6 +88,40 @@ function NavControls({
   )
 }
 
+function MobileTopBar({
+  steps,
+  currentStep,
+  total,
+  pct,
+}: {
+  steps: Array<{ title: string }>
+  currentStep: number
+  total: number
+  pct: number
+}) {
+  return (
+    <div className="flex w-full shrink-0 flex-col gap-2 bg-sidebar px-4 py-3 text-sidebar-foreground lg:hidden">
+      <div className="flex items-center justify-between gap-3">
+        <span className="min-w-0 flex-1 truncate text-[12px] font-semibold">
+          {pad(currentStep + 1)}/{pad(total)} · {steps[currentStep]?.title}
+        </span>
+        <span className="shrink-0 text-[11px] font-semibold opacity-55">{pct}%</span>
+      </div>
+      <div className="flex gap-[3px]">
+        {steps.map((s, index) => (
+          <div
+            key={s.title}
+            className={cn(
+              'h-[3px] flex-1 rounded-full',
+              index <= currentStep ? 'bg-sidebar-foreground' : 'bg-sidebar-foreground/25',
+            )}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function FormNav({
   steps,
   currentStep,
@@ -123,9 +157,13 @@ export function FormNav({
     />
   )
 
+  const mobileBar = <MobileTopBar steps={steps} currentStep={currentStep} total={total} pct={pct} />
+
   if (mode === 'rail' && collapsed) {
     return (
-      <div className="relative flex w-full shrink-0 flex-col items-center gap-4 overflow-y-auto bg-sidebar px-3 pt-[106px] pb-6 text-sidebar-foreground transition-[width] duration-[220ms] ease-out lg:w-[84px]">
+      <>
+        {mobileBar}
+        <div className="relative hidden w-full shrink-0 flex-col items-center gap-4 overflow-y-auto bg-sidebar px-3 pt-[106px] pb-6 text-sidebar-foreground transition-[width] duration-[220ms] ease-out lg:flex lg:w-[84px]">
         {controls}
         <span className="text-[11px] font-semibold opacity-60">{pct}%</span>
         {steps.map((s, index) => (
@@ -143,13 +181,16 @@ export function FormNav({
             {pad(index + 1)}
           </button>
         ))}
-      </div>
+        </div>
+      </>
     )
   }
 
   if (mode === 'rail') {
     return (
-      <div className="relative flex w-full shrink-0 flex-col gap-7 overflow-y-auto bg-sidebar px-6 py-7 text-sidebar-foreground transition-[width] duration-[220ms] ease-out lg:w-[320px]">
+      <>
+        {mobileBar}
+        <div className="relative hidden w-full shrink-0 flex-col gap-7 overflow-y-auto bg-sidebar px-6 py-7 text-sidebar-foreground transition-[width] duration-[220ms] ease-out lg:flex lg:w-[320px]">
         {controls}
         <div className="flex justify-center items-center gap-2.5">
           <img
@@ -219,13 +260,16 @@ export function FormNav({
             Tutup halaman ini dan lanjutkan nanti lewat tautan yang kami kirim ke email Anda.
           </div>
         </div>
-      </div>
+        </div>
+      </>
     )
   }
 
   if (collapsed) {
     return (
-      <div className="relative flex w-full shrink-0 items-center gap-4 bg-sidebar py-3 pl-6 pr-[86px] text-sidebar-foreground sm:pl-8">
+      <>
+        {mobileBar}
+        <div className="relative hidden w-full shrink-0 items-center gap-4 bg-sidebar py-3 pl-6 pr-[86px] text-sidebar-foreground sm:pl-8 lg:flex">
         {controls}
         <span className="shrink-0 text-[11px] font-semibold opacity-75">
           {pad(currentStep + 1)} / {pad(total)} · {steps[currentStep]?.title}
@@ -242,12 +286,15 @@ export function FormNav({
           ))}
         </div>
         <span className="shrink-0 text-[11px] font-semibold opacity-55">{pct}%</span>
-      </div>
+        </div>
+      </>
     )
   }
 
   return (
-    <div className="relative w-full shrink-0 bg-sidebar pt-6 pl-6 pr-[86px] text-sidebar-foreground sm:pl-8">
+    <>
+      {mobileBar}
+      <div className="relative hidden w-full shrink-0 bg-sidebar pt-6 pl-6 pr-[86px] text-sidebar-foreground sm:pl-8 lg:block">
       {controls}
       <div className="flex flex-wrap items-top justify-between gap-3">
         <div className="flex items-center gap-2.5">
@@ -290,6 +337,7 @@ export function FormNav({
           </button>
         ))}
       </div>
-    </div>
+      </div>
+    </>
   )
 }
