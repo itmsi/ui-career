@@ -5,6 +5,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
 
 import { DatePickerField } from '../components/date-picker-field'
 import { captionLabelClass, inputHeightClass } from '../form-utils'
@@ -105,13 +106,13 @@ export function ApplicantInformationSection({
           <div className="flex gap-2">
             <Input
               placeholder="Tempat lahir"
-              className={inputHeightClass}
+              className={cn(inputHeightClass, 'min-w-0 flex-1')}
               {...register('birthPlace')}
             />
             <DatePickerField
               name="birthDate"
               control={control}
-              className="min-w-0 shrink"
+              className="min-w-0 flex-1"
             />
           </div>
         </Field>
@@ -173,7 +174,7 @@ export function ApplicantInformationSection({
             {...register('positionApplied')}
           />
         </Field>
-        <Field>
+        <Field data-invalid={!!errors.workingAvailableDate}>
           <FieldLabel htmlFor="workingAvailableDate" className={captionLabelClass}>
             WORKING AVAILABLE DATE/ Tanggal siap bekerja
           </FieldLabel>
@@ -181,6 +182,7 @@ export function ApplicantInformationSection({
             id="workingAvailableDate"
             name="workingAvailableDate"
             control={control}
+            rules={{ required: 'Tanggal siap bekerja wajib diisi' }}
           />
         </Field>
 

@@ -4,14 +4,24 @@ import { EDUCATION_ROWS, FAMILY_ROWS, SCREENING_QUESTIONS, yesNoLabel } from './
 import type { ApplicantFormValues } from './types'
 
 export type InvitationVerifyResponse = {
-  valid?: boolean
-  message?: string
+  id: string
+  full_name: string
+  email: string
+  no_mobile: string
 }
 
-export function verifyApplicantInvitation(token: string) {
-  return apiRequest<InvitationVerifyResponse>(
+type InvitationVerifyApiResponse = {
+  success: boolean
+  message: string
+  data: InvitationVerifyResponse
+  timestamp: string
+}
+
+export async function verifyApplicantInvitation(token: string) {
+  const response = await apiRequest<InvitationVerifyApiResponse>(
     `/applicant-invitations/verify/${encodeURIComponent(token)}`,
   )
+  return response.data
 }
 
 export function submitApplicantForm(token: string, values: ApplicantFormValues) {
@@ -20,6 +30,49 @@ export function submitApplicantForm(token: string, values: ApplicantFormValues) 
     headers: { Authorization: `Bearer ${token}` },
     data: toApplicantFormPayload(values),
   })
+}
+
+export type SignatureUploadResponse = {
+  signature_link: string
+  signature_date: string
+}
+
+type SignatureUploadApiResponse = {
+  success: boolean
+  message: string
+  data: SignatureUploadResponse
+  timestamp: string
+}
+
+export async function uploadApplicantFormSignature(
+  token: string,
+  signatureDataUrl: string,
+  signatureDate?: string,
+) {
+  const formData = new FormData()
+  formData.append('file', dataUrlToFile(signatureDataUrl, 'signature.png'))
+  if (signatureDate) formData.append('signature_date', signatureDate)
+
+  const response = await apiRequest<SignatureUploadApiResponse>(
+    '/applicant-form-signatures/create',
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      data: formData,
+    },
+  )
+  return response.data
+}
+
+function dataUrlToFile(dataUrl: string, filename: string): File {
+  const [header, base64] = dataUrl.split(',')
+  const mime = header.match(/data:(.*?);base64/)?.[1] ?? 'image/png'
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return new File([bytes], filename, { type: mime })
 }
 
 function toApplicantFormPayload(values: ApplicantFormValues) {
@@ -93,5 +146,7 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
       question,
       answers: yesNoLabel(values[name]),
     })),
+    signature_link: values.signatureLink,
+    signature_date: values.signatureDate,
   }
 }

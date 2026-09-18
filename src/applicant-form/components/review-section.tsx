@@ -14,7 +14,7 @@ export function ReviewSection({
     <div className="space-y-3">
       <div className="flex items-center gap-2 border-b border-border pb-2">
         <Icon className="size-4 text-primary" />
-        <h3 className="font-heading text-sm font-semibold tracking-wide uppercase">{title}</h3>
+        <h3 className="font-heading text-sm font-semibold">{title}</h3>
       </div>
       {children}
     </div>

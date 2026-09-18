@@ -14,7 +14,7 @@ export function YesNoQuestion({
   control: Control<ApplicantFormValues>
 }) {
   return (
-    <div className="flex flex-col gap-3 border border-border p-4 transition-colors hover:border-foreground/40 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-white/60 p-4 backdrop-blur-sm transition-colors hover:border-foreground/30 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
       <p className="text-sm leading-relaxed">{question}</p>
       <Controller
         control={control}
@@ -23,13 +23,13 @@ export function YesNoQuestion({
           <RadioGroup
             value={(field.value as string) || ''}
             onValueChange={field.onChange}
-            className="flex w-auto shrink-0 border border-border"
+            className="flex w-auto shrink-0 overflow-hidden rounded-full border border-border"
           >
-            <label className="flex cursor-pointer items-center gap-2 px-4 py-2 font-heading text-sm font-semibold tracking-wide uppercase transition-colors has-data-checked:bg-primary has-data-checked:text-primary-foreground">
+            <label className="flex cursor-pointer items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors has-data-checked:bg-primary has-data-checked:text-primary-foreground">
               <RadioGroupItem value="yes" className="sr-only" />
               Ya
             </label>
-            <label className="flex cursor-pointer items-center gap-2 border-l border-border px-4 py-2 font-heading text-sm font-semibold tracking-wide uppercase transition-colors has-data-checked:bg-primary has-data-checked:text-primary-foreground">
+            <label className="flex cursor-pointer items-center gap-2 border-l border-border px-4 py-2 text-sm font-semibold transition-colors has-data-checked:bg-primary has-data-checked:text-primary-foreground">
               <RadioGroupItem value="no" className="sr-only" />
               Tidak
             </label>
