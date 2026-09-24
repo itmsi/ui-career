@@ -1,4 +1,4 @@
-import { Award, Briefcase, Contact, FileSignature, GraduationCap, ShieldQuestion, UserRound, UsersRound } from 'lucide-react'
+import { Award, Briefcase, Contact, FileSignature, FileText, GraduationCap, Paperclip, ShieldQuestion, UserRound, UsersRound } from 'lucide-react'
 
 import { EntryCard } from '../components/entry-card'
 import { ReviewItem } from '../components/review-item'
@@ -210,6 +210,31 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
             value={yesNoLabel(values.willingToRelocate)}
           />
         </div>
+      </ReviewSection>
+
+      <ReviewSection icon={Paperclip} title="Additional Document">
+        {values.additionalDocuments.length === 0 ? (
+          <p className="text-sm text-muted-foreground italic">Belum ada dokumen tambahan.</p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {values.additionalDocuments.map((doc, index) => (
+              <a
+                key={index}
+                href={doc.file}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2.5 rounded-xl border border-input bg-white/70 p-3 transition-colors hover:border-primary/50 dark:bg-input/30"
+              >
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <FileText className="size-4" />
+                </span>
+                <span className="truncate text-sm font-medium text-foreground">
+                  {doc.file_title}
+                </span>
+              </a>
+            ))}
+          </div>
+        )}
       </ReviewSection>
 
       <ReviewSection icon={FileSignature} title="Signature">

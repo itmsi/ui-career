@@ -1,7 +1,7 @@
 import { apiRequest } from '@/lib/api-client'
 
 import { EDUCATION_ROWS, FAMILY_ROWS, SCREENING_QUESTIONS, yesNoLabel } from './form-utils'
-import type { ApplicantFormValues } from './types'
+import type { AdditionalDocumentItem, ApplicantFormValues } from './types'
 
 export type InvitationVerifyResponse = {
   id: string
@@ -55,6 +55,45 @@ export async function uploadApplicantFormSignature(
 
   const response = await apiRequest<SignatureUploadApiResponse>(
     '/applicant-form-signatures/create',
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      data: formData,
+    },
+  )
+  return response.data
+}
+
+type ApplicantFormFileApiResponse = {
+  success: boolean
+  message: string
+  data: AdditionalDocumentItem
+}
+
+/** Mime type -> `file_type` value expected by the upload endpoint. */
+const APPLICANT_FORM_FILE_TYPE_BY_MIME: Record<string, string> = {
+  'image/png': 'image',
+  'image/jpeg': 'image',
+  'image/webp': 'image',
+  'application/pdf': 'document',
+}
+
+export function applicantFormFileTypeFor(file: File): string {
+  return APPLICANT_FORM_FILE_TYPE_BY_MIME[file.type] ?? 'document'
+}
+
+export async function uploadApplicantFormFile(
+  token: string,
+  file: File,
+  fileTitle: string,
+): Promise<AdditionalDocumentItem> {
+  const formData = new FormData()
+  formData.append('file_title', fileTitle)
+  formData.append('file_type', applicantFormFileTypeFor(file))
+  formData.append('file', file)
+
+  const response = await apiRequest<ApplicantFormFileApiResponse>(
+    '/applicant-form-files/create',
     {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },
@@ -146,6 +185,9 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
       question,
       answers: yesNoLabel(values[name]),
     })),
+    // NOTE: field name assumed to mirror the upload endpoint's resource name
+    // (`/applicant-form-files/create`); confirm with backend and rename if it differs.
+    applicant_form_files: values.additionalDocuments,
     signature_link: values.signatureLink,
     signature_date: values.signatureDate,
   }
