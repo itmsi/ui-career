@@ -2,19 +2,18 @@ import { format, isValid, parseISO } from 'date-fns'
 
 import { defaultValues, type ApplicantFormValues, type YesNo } from './types'
 
-export const captionLabelClass =
-  'font-heading text-[11.5px] font-semibold tracking-[0.08em] text-foreground/75 uppercase'
-export const inputHeightClass = 'h-10 rounded-lg'
+export const captionLabelClass = 'text-[12.5px] font-semibold text-foreground/80'
+export const inputHeightClass = 'h-10 rounded-md'
 
 export const EDUCATION_ROWS: Array<{
   key: keyof ApplicantFormValues['education']
   label: string
   typeOfSchool: string
 }> = [
-  { key: 'university', label: 'University/ Universitas', typeOfSchool: 'university' },
-  { key: 'highSchool', label: 'High School/ SMA', typeOfSchool: 'high_school' },
-  { key: 'juniorSchool', label: 'Junior School/ SMP', typeOfSchool: 'junior_school' },
-  { key: 'elementarySchool', label: 'Elementary School/ SD', typeOfSchool: 'elementary_school' },
+  { key: 'university', label: 'University/ Universitas', typeOfSchool: 'universitas' },
+  { key: 'highSchool', label: 'High School/ SMA', typeOfSchool: 'sma' },
+  { key: 'juniorSchool', label: 'Junior School/ SMP', typeOfSchool: 'smp' },
+  { key: 'elementarySchool', label: 'Elementary School/ SD', typeOfSchool: 'sd' },
 ]
 
 export const FAMILY_ROWS: Array<{

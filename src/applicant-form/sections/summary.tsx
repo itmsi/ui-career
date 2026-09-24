@@ -3,7 +3,13 @@ import { Award, Briefcase, Contact, FileSignature, GraduationCap, ShieldQuestion
 import { EntryCard } from '../components/entry-card'
 import { ReviewItem } from '../components/review-item'
 import { ReviewSection } from '../components/review-section'
-import { EDUCATION_ROWS, FAMILY_ROWS, formatDateDisplay, yesNoLabel } from '../form-utils'
+import {
+  captionLabelClass,
+  EDUCATION_ROWS,
+  FAMILY_ROWS,
+  formatDateDisplay,
+  yesNoLabel,
+} from '../form-utils'
 import type { ApplicantFormValues } from '../types'
 
 export function SummarySection({ values }: { values: ApplicantFormValues }) {
@@ -206,9 +212,20 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
         </div>
       </ReviewSection>
 
-      <ReviewSection icon={FileSignature} title="Certification">
+      <ReviewSection icon={FileSignature} title="Signature">
         <div className="grid gap-4 sm:grid-cols-2">
-          <ReviewItem label="Signature of Applicant" value={values.applicantSignature} />
+          <div>
+            <p className={captionLabelClass}>Signature of Applicant</p>
+            {values.applicantSignature ? (
+              <img
+                src={values.applicantSignature}
+                alt="Signature of Applicant"
+                className="mt-1 h-20 max-w-full rounded-md border border-input bg-white/70 object-contain dark:bg-input/30"
+              />
+            ) : (
+              <p className="text-sm font-normal text-muted-foreground italic">Belum diisi</p>
+            )}
+          </div>
           <ReviewItem label="Date" value={formatDateDisplay(values.signatureDate)} />
         </div>
       </ReviewSection>

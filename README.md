@@ -2,6 +2,8 @@
 
 Applicant form portal, built with React 19, Vite, Tailwind CSS v4, and shadcn/ui.
 
+If you add component go to https://ui.shadcn.com/docs/components for add component
+
 ## Requirements
 
 - Node.js 22+
