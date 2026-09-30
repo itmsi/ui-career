@@ -41,6 +41,12 @@ export type ReferenceRow = {
 
 export type YesNo = '' | 'yes' | 'no'
 
+export type AdditionalDocumentItem = {
+  file_title: string
+  file_type: string
+  file: string
+}
+
 export type ApplicantFormValues = {
   fullName: string
   addressIdCard: string
@@ -88,6 +94,7 @@ export type ApplicantFormValues = {
   hasCriminalRecord: YesNo
   hasUsedDrugs: YesNo
   willingToRelocate: YesNo
+  additionalDocuments: AdditionalDocumentItem[]
   applicantSignature: string
   signatureLink: string
   signatureDate: string
@@ -175,6 +182,7 @@ export const defaultValues: ApplicantFormValues = {
   hasCriminalRecord: '',
   hasUsedDrugs: '',
   willingToRelocate: '',
+  additionalDocuments: [],
   applicantSignature: '',
   signatureLink: '',
   signatureDate: format(new Date(), 'yyyy-MM-dd'),

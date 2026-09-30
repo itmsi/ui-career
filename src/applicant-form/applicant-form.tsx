@@ -11,6 +11,7 @@ import { ApiError } from '@/lib/api-client'
 import { submitApplicantForm, type InvitationVerifyResponse } from './api'
 import { FormNav } from './components/form-nav'
 import { DRAFT_STORAGE_KEY, STEP_STORAGE_KEY, loadDraftStep, loadDraftValues } from './form-utils'
+import { AdditionalDocumentsSection } from './sections/additional-documents'
 import { ApplicantInformationSection } from './sections/applicant-information'
 import { EducationalBackgroundSection } from './sections/educational-background'
 import { FamilyBackgroundSection } from './sections/family-background'
@@ -59,6 +60,7 @@ export function ApplicantForm({
   const informalEducationArray = useFieldArray({ control, name: 'informalEducation' })
   const workExperienceArray = useFieldArray({ control, name: 'workExperience' })
   const referencesArray = useFieldArray({ control, name: 'references' })
+  const additionalDocumentsArray = useFieldArray({ control, name: 'additionalDocuments' })
   const [step, setStep] = useState(loadDraftStep)
   const [navMode, setNavMode] = useState<'rail' | 'bar'>('rail')
   const [navCollapsed, setNavCollapsed] = useState(false)
@@ -186,6 +188,19 @@ export function ApplicantForm({
       title: 'Please select one of the following answers',
       description: 'Silahkan pilih salah satu jawaban dari pertanyaan berikut',
       content: <ScreeningQuestionsSection control={control} />,
+    },
+    {
+      title: 'Additional Document',
+      description:
+        'Unggah dokumen pendukung tambahan (opsional) / Upload additional supporting documents (optional)',
+      content: (
+        <AdditionalDocumentsSection
+          token={token}
+          fields={additionalDocumentsArray.fields}
+          onAppend={(item) => additionalDocumentsArray.append(item)}
+          onRemove={(index) => additionalDocumentsArray.remove(index)}
+        />
+      ),
     },
     {
       title: 'Signature',
