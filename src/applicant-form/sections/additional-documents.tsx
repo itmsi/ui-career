@@ -93,6 +93,20 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
     return () => URL.revokeObjectURL(previewUrl)
   }, [previewUrl])
 
+  // Right after an upload, show the applicant's own file instead of relying on the
+  // server URL rendering as an image. Keyed by the uploaded URL so it is ignored once
+  // the file is replaced or removed.
+  const [localThumb, setLocalThumb] = useState<{ file: string; url: string } | null>(null)
+  useEffect(() => {
+    if (!localThumb) return
+    return () => URL.revokeObjectURL(localThumb.url)
+  }, [localThumb])
+  const thumbSrc =
+    localThumb && localThumb.file === uploaded.file ? localThumb.url : uploaded.file
+  // A server URL that fails to load falls back to the file icon instead of a broken image.
+  const [brokenThumb, setBrokenThumb] = useState<string | null>(null)
+  const showThumb = config.image && !!thumbSrc && brokenThumb !== thumbSrc
+
   usePendingUpload(
     config.name,
     pendingFile ? `${config.noun}: ${pendingFile.name}` : null,
@@ -125,6 +139,9 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
     setUploading(true)
     try {
       const result = await uploadApplicantFormFile(token, pendingFile, config.fileTitle)
+      setLocalThumb(
+        config.image ? { file: result.file, url: URL.createObjectURL(pendingFile) } : null,
+      )
       field.onChange(result)
       field.onBlur()
       setPendingFile(null)
@@ -207,10 +224,11 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
       ) : uploaded.file ? (
         <div className="flex items-center justify-between gap-3 rounded-xl border border-input bg-white/70 p-3 dark:bg-input/30">
           <div className="flex min-w-0 items-center gap-2.5">
-            {config.image ? (
+            {showThumb ? (
               <img
-                src={uploaded.file}
+                src={thumbSrc}
                 alt={uploaded.file_title}
+                onError={() => setBrokenThumb(thumbSrc)}
                 className="size-12 shrink-0 rounded-lg border border-input bg-white object-cover"
               />
             ) : (
