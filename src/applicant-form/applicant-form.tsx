@@ -289,7 +289,9 @@ export function ApplicantForm({
       <FormProvider {...form}>
         <form
           noValidate
-          onSubmit={handleSubmit(onSubmit, onInvalid)}
+          // Submission only happens through the explicit "Kirim Lamaran" click, so
+          // pressing Enter in an input or a stray submit can never send the form.
+          onSubmit={(event) => event.preventDefault()}
           className={cn('flex min-h-0 flex-1 flex-col', navMode === 'rail' && 'lg:flex-row')}
         >
           <FormNav
@@ -341,13 +343,21 @@ export function ApplicantForm({
                     {lastSavedAt ? `Tersimpan ${format(lastSavedAt, 'HH:mm')}` : 'Draf belum tersimpan'}
                   </span>
 
+                  {/* Distinct keys stop React from reusing the "Lanjut" <button> as the
+                      submit button, which would let the very click that opens the review
+                      step also send the form. */}
                   {isLastStep ? (
-                    <Button type="submit" disabled={isSubmitting}>
+                    <Button
+                      key="submit"
+                      type="button"
+                      onClick={handleSubmit(onSubmit, onInvalid)}
+                      disabled={isSubmitting}
+                    >
                       <Send className="size-4" />
                       {isSubmitting ? 'Mengirim...' : 'Kirim Lamaran'}
                     </Button>
                   ) : (
-                    <Button type="button" onClick={handleNext}>
+                    <Button key="next" type="button" onClick={handleNext}>
                       Lanjut
                     </Button>
                   )}
