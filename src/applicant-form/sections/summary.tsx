@@ -24,6 +24,10 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
     .map((row, index) => ({ row, index }))
     .filter(({ row }) => Object.values(row).some((v) => v && v.trim()))
 
+  const uploadedDocuments = [values.cvDocument, ...values.additionalDocuments].filter(
+    (doc) => doc.file,
+  )
+
   return (
     <div className="space-y-6">
       <ReviewSection icon={UserRound} title="Applicant Information / Informasi Pelamar">
@@ -200,11 +204,11 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
       </ReviewSection>
 
       <ReviewSection icon={Paperclip} title="Additional Document">
-        {values.additionalDocuments.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">Belum ada dokumen tambahan.</p>
+        {uploadedDocuments.length === 0 ? (
+          <p className="text-sm text-muted-foreground italic">Belum ada dokumen.</p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {values.additionalDocuments.map((doc, index) => (
+            {uploadedDocuments.map((doc, index) => (
               <a
                 key={index}
                 href={doc.file}

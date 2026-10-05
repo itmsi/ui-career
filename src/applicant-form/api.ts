@@ -187,7 +187,10 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
     })),
     // NOTE: field name assumed to mirror the upload endpoint's resource name
     // (`/applicant-form-files/create`); confirm with backend and rename if it differs.
-    applicant_form_files: values.additionalDocuments,
+    // The CV is uploaded through the same endpoint, so it travels with the other files.
+    applicant_form_files: [values.cvDocument, ...values.additionalDocuments].filter(
+      (doc) => doc.file,
+    ),
     signature_link: values.signatureLink,
     signature_date: values.signatureDate,
   }
