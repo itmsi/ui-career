@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 
 import { uploadApplicantFormFile } from '../api'
 import { FieldCaption } from '../components/form-fields'
+import { usePendingUpload } from '../pending-uploads'
 import { captionLabelClass, inputHeightClass } from '../form-utils'
 import type { ApplicantFormValues } from '../types'
 
@@ -29,22 +30,25 @@ function formatFileSize(bytes: number) {
 
 const CV_FILE_TITLE = 'CV'
 
-/** Dedicated, required CV slot: PDF only, uploaded as soon as it is picked. */
+/** Dedicated, required CV slot: PDF only, staged first and uploaded on "Upload". */
 function CvUploadField({ token }: { token: string }) {
   const {
     field: { ref, ...field },
     fieldState,
   } = useController<ApplicantFormValues, 'cvDocument'>({ name: 'cvDocument' })
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const cv = field.value
 
+  usePendingUpload('cv', pendingFile ? `CV: ${pendingFile.name}` : null, cancelPending)
+
   function openPicker() {
     if (!uploading) inputRef.current?.click()
   }
 
-  async function upload(file: File) {
+  function stageFile(file: File) {
     if (file.type !== 'application/pdf') {
       toast.error('CV harus berformat PDF.')
       return
@@ -53,13 +57,22 @@ function CvUploadField({ token }: { token: string }) {
       toast.error('Ukuran CV maksimal 2MB.')
       return
     }
+    setPendingFile(file)
+  }
 
+  function cancelPending() {
+    setPendingFile(null)
+  }
+
+  async function handleUpload() {
+    if (!pendingFile) return
     const toastId = toast.loading('Mengunggah CV...')
     setUploading(true)
     try {
-      const result = await uploadApplicantFormFile(token, file, CV_FILE_TITLE)
+      const result = await uploadApplicantFormFile(token, pendingFile, CV_FILE_TITLE)
       field.onChange(result)
       field.onBlur()
+      setPendingFile(null)
       toast.success('CV berhasil diunggah.', { id: toastId })
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : 'Gagal mengunggah CV.', { id: toastId })
@@ -88,11 +101,45 @@ function CvUploadField({ token }: { token: string }) {
         onChange={(event) => {
           const file = event.target.files?.[0]
           event.target.value = ''
-          if (file) void upload(file)
+          if (file) stageFile(file)
         }}
       />
 
-      {cv.file ? (
+      {pendingFile ? (
+        <div className="space-y-3 rounded-xl border border-input bg-white/70 p-4 dark:bg-input/30">
+          <div className="flex items-center gap-3 rounded-lg border border-dashed border-input bg-muted/30 p-4">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <FileText className="size-6" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">{pendingFile.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatFileSize(pendingFile.size)}
+                {cv.file && ' · akan menggantikan CV sebelumnya'}
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={cancelPending}
+              disabled={uploading}
+            >
+              Batal
+            </Button>
+            <Button type="button" size="sm" onClick={handleUpload} disabled={uploading}>
+              {uploading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <UploadCloud className="size-4" />
+              )}
+              {uploading ? 'Mengunggah...' : 'Upload'}
+            </Button>
+          </div>
+        </div>
+      ) : cv.file ? (
         <div className="flex items-center justify-between gap-3 rounded-xl border border-input bg-white/70 p-3 dark:bg-input/30">
           <div className="flex min-w-0 items-center gap-2.5">
             <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -111,20 +158,15 @@ function CvUploadField({ token }: { token: string }) {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <Button type="button" variant="outline" size="sm" onClick={openPicker} disabled={uploading}>
-              {uploading ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <UploadCloud className="size-4" />
-              )}
-              {uploading ? 'Mengunggah...' : 'Ganti'}
+            <Button type="button" variant="outline" size="sm" onClick={openPicker}>
+              <UploadCloud className="size-4" />
+              Ganti
             </Button>
             <Button
               type="button"
               variant="ghost"
               size="icon-sm"
               onClick={handleRemove}
-              disabled={uploading}
               aria-label="Hapus CV"
               className="text-muted-foreground hover:text-destructive"
             >
@@ -155,7 +197,7 @@ function CvUploadField({ token }: { token: string }) {
             event.preventDefault()
             setDragActive(false)
             const file = event.dataTransfer.files?.[0]
-            if (file && !uploading) void upload(file)
+            if (file) stageFile(file)
           }}
           className={cn(
             'group flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-input bg-muted/30 p-6 text-center transition-colors outline-none hover:border-primary/50 hover:bg-primary/5 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
@@ -164,15 +206,9 @@ function CvUploadField({ token }: { token: string }) {
           )}
         >
           <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-105">
-            {uploading ? (
-              <Loader2 className="size-5 animate-spin" />
-            ) : (
-              <FileText className="size-5" />
-            )}
+            <FileText className="size-5" />
           </span>
-          <span className="text-sm font-medium text-foreground">
-            {uploading ? 'Mengunggah CV...' : 'Klik atau seret CV ke sini'}
-          </span>
+          <span className="text-sm font-medium text-foreground">Klik atau seret CV ke sini</span>
           <span className="text-xs text-muted-foreground">PDF · maks. 2MB</span>
         </div>
       )}
@@ -210,6 +246,12 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
     setPreviewUrl(url)
     return () => URL.revokeObjectURL(url)
   }, [pendingFile])
+
+  usePendingUpload(
+    'additional-document',
+    pendingFile ? `Dokumen tambahan: ${title.trim() || pendingFile.name}` : null,
+    cancelPending,
+  )
 
   function stageFile(file: File) {
     if (!ACCEPTED_MIME_TYPES.includes(file.type)) {
