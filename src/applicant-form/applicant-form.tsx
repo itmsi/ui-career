@@ -213,8 +213,8 @@ export function ApplicantForm({
     {
       title: 'Additional Document',
       description:
-        'Unggah CV (wajib) dan dokumen pendukung tambahan (opsional) / Upload your CV (required) and additional supporting documents (optional)',
-      fields: ['cvDocument', 'additionalDocuments'],
+        'Unggah CV (wajib), pas foto, dan dokumen pendukung tambahan (opsional) / Upload your CV (required), photo, and additional supporting documents (optional)',
+      fields: ['cvDocument', 'photoDocument', 'additionalDocuments'],
       content: <AdditionalDocumentsSection token={token} />,
     },
     {

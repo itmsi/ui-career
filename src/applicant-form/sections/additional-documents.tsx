@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FileImage, FileText, Loader2, Trash2, UploadCloud, X } from 'lucide-react'
 import { useController, useFieldArray, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -28,33 +28,88 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-const CV_FILE_TITLE = 'CV'
+type SingleFileConfig = {
+  name: 'cvDocument' | 'photoDocument'
+  label: string
+  /** `file_title` sent to the upload endpoint. */
+  fileTitle: string
+  /** Short name used in messages, e.g. "CV" or "Foto". */
+  noun: string
+  acceptAttr: string
+  acceptedMimeTypes: string[]
+  formatError: string
+  dropzoneText: string
+  hint: string
+  /** Show the picked / uploaded file as an image thumbnail. */
+  image?: boolean
+  required?: boolean
+}
 
-/** Dedicated, required CV slot: PDF only, staged first and uploaded on "Upload". */
-function CvUploadField({ token }: { token: string }) {
+const CV_CONFIG: SingleFileConfig = {
+  name: 'cvDocument',
+  label: 'CV / Curriculum Vitae',
+  fileTitle: 'CV',
+  noun: 'CV',
+  acceptAttr: '.pdf,application/pdf',
+  acceptedMimeTypes: ['application/pdf'],
+  formatError: 'CV harus berformat PDF.',
+  dropzoneText: 'Klik atau seret CV ke sini',
+  hint: 'PDF · maks. 2MB',
+  required: true,
+}
+
+const PHOTO_CONFIG: SingleFileConfig = {
+  name: 'photoDocument',
+  label: 'Pas Foto / Photo',
+  fileTitle: 'Foto',
+  noun: 'Foto',
+  acceptAttr: '.png,.jpg,.jpeg,.webp',
+  acceptedMimeTypes: ['image/png', 'image/jpeg', 'image/webp'],
+  formatError: 'Foto harus berformat PNG, JPG, JPEG, atau WEBP.',
+  dropzoneText: 'Klik atau seret foto ke sini',
+  hint: 'PNG, JPG, JPEG, atau WEBP · maks. 2MB',
+  image: true,
+}
+
+/** A dedicated single-file slot: staged first, uploaded on "Upload". */
+function SingleFileUploadField({ token, config }: { token: string; config: SingleFileConfig }) {
   const {
     field: { ref, ...field },
     fieldState,
-  } = useController<ApplicantFormValues, 'cvDocument'>({ name: 'cvDocument' })
+  } = useController<ApplicantFormValues, SingleFileConfig['name']>({ name: config.name })
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const cv = field.value
+  const uploaded = field.value
+  const Icon = config.image ? FileImage : FileText
 
-  usePendingUpload('cv', pendingFile ? `CV: ${pendingFile.name}` : null, cancelPending)
+  const previewUrl = useMemo(
+    () => (config.image && pendingFile ? URL.createObjectURL(pendingFile) : null),
+    [config.image, pendingFile],
+  )
+  useEffect(() => {
+    if (!previewUrl) return
+    return () => URL.revokeObjectURL(previewUrl)
+  }, [previewUrl])
+
+  usePendingUpload(
+    config.name,
+    pendingFile ? `${config.noun}: ${pendingFile.name}` : null,
+    cancelPending,
+  )
 
   function openPicker() {
     if (!uploading) inputRef.current?.click()
   }
 
   function stageFile(file: File) {
-    if (file.type !== 'application/pdf') {
-      toast.error('CV harus berformat PDF.')
+    if (!config.acceptedMimeTypes.includes(file.type)) {
+      toast.error(config.formatError)
       return
     }
     if (file.size > MAX_ADDITIONAL_DOCUMENT_SIZE_BYTES) {
-      toast.error('Ukuran CV maksimal 2MB.')
+      toast.error(`Ukuran ${config.noun} maksimal 2MB.`)
       return
     }
     setPendingFile(file)
@@ -66,16 +121,18 @@ function CvUploadField({ token }: { token: string }) {
 
   async function handleUpload() {
     if (!pendingFile) return
-    const toastId = toast.loading('Mengunggah CV...')
+    const toastId = toast.loading(`Mengunggah ${config.noun}...`)
     setUploading(true)
     try {
-      const result = await uploadApplicantFormFile(token, pendingFile, CV_FILE_TITLE)
+      const result = await uploadApplicantFormFile(token, pendingFile, config.fileTitle)
       field.onChange(result)
       field.onBlur()
       setPendingFile(null)
-      toast.success('CV berhasil diunggah.', { id: toastId })
+      toast.success(`${config.noun} berhasil diunggah.`, { id: toastId })
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : 'Gagal mengunggah CV.', { id: toastId })
+      toast.error(err instanceof ApiError ? err.message : `Gagal mengunggah ${config.noun}.`, {
+        id: toastId,
+      })
     } finally {
       setUploading(false)
     }
@@ -84,19 +141,19 @@ function CvUploadField({ token }: { token: string }) {
   function handleRemove() {
     field.onChange({ file_title: '', file_type: '', file: '' })
     field.onBlur()
-    toast.success('CV dihapus.')
+    toast.success(`${config.noun} dihapus.`)
   }
 
   return (
     <Field data-invalid={!!fieldState.error}>
-      <FieldCaption htmlFor="cvDocument" required>
-        CV / Curriculum Vitae
+      <FieldCaption htmlFor={config.name} required={config.required}>
+        {config.label}
       </FieldCaption>
 
       <input
         ref={inputRef}
         type="file"
-        accept=".pdf,application/pdf"
+        accept={config.acceptAttr}
         className="hidden"
         onChange={(event) => {
           const file = event.target.files?.[0]
@@ -108,14 +165,22 @@ function CvUploadField({ token }: { token: string }) {
       {pendingFile ? (
         <div className="space-y-3 rounded-xl border border-input bg-white/70 p-4 dark:bg-input/30">
           <div className="flex items-center gap-3 rounded-lg border border-dashed border-input bg-muted/30 p-4">
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <FileText className="size-6" />
-            </span>
+            {previewUrl ? (
+              <img
+                src={previewUrl}
+                alt={pendingFile.name}
+                className="size-16 shrink-0 rounded-lg border border-input bg-white object-cover"
+              />
+            ) : (
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Icon className="size-6" />
+              </span>
+            )}
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-foreground">{pendingFile.name}</p>
               <p className="text-xs text-muted-foreground">
                 {formatFileSize(pendingFile.size)}
-                {cv.file && ' · akan menggantikan CV sebelumnya'}
+                {uploaded.file && ` · akan menggantikan ${config.noun} sebelumnya`}
               </p>
             </div>
           </div>
@@ -139,21 +204,29 @@ function CvUploadField({ token }: { token: string }) {
             </Button>
           </div>
         </div>
-      ) : cv.file ? (
+      ) : uploaded.file ? (
         <div className="flex items-center justify-between gap-3 rounded-xl border border-input bg-white/70 p-3 dark:bg-input/30">
           <div className="flex min-w-0 items-center gap-2.5">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <FileText className="size-4" />
-            </span>
+            {config.image ? (
+              <img
+                src={uploaded.file}
+                alt={uploaded.file_title}
+                className="size-12 shrink-0 rounded-lg border border-input bg-white object-cover"
+              />
+            ) : (
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Icon className="size-4" />
+              </span>
+            )}
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-foreground">{cv.file_title}</p>
+              <p className="truncate text-sm font-medium text-foreground">{uploaded.file_title}</p>
               <a
-                href={cv.file}
+                href={uploaded.file}
                 target="_blank"
                 rel="noreferrer"
                 className="truncate text-xs text-muted-foreground hover:text-primary hover:underline"
               >
-                Lihat CV
+                Lihat {config.noun}
               </a>
             </div>
           </div>
@@ -167,7 +240,7 @@ function CvUploadField({ token }: { token: string }) {
               variant="ghost"
               size="icon-sm"
               onClick={handleRemove}
-              aria-label="Hapus CV"
+              aria-label={`Hapus ${config.noun}`}
               className="text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="size-4" />
@@ -176,7 +249,7 @@ function CvUploadField({ token }: { token: string }) {
         </div>
       ) : (
         <div
-          id="cvDocument"
+          id={config.name}
           ref={ref}
           role="button"
           tabIndex={0}
@@ -206,10 +279,10 @@ function CvUploadField({ token }: { token: string }) {
           )}
         >
           <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-105">
-            <FileText className="size-5" />
+            <Icon className="size-5" />
           </span>
-          <span className="text-sm font-medium text-foreground">Klik atau seret CV ke sini</span>
-          <span className="text-xs text-muted-foreground">PDF · maks. 2MB</span>
+          <span className="text-sm font-medium text-foreground">{config.dropzoneText}</span>
+          <span className="text-xs text-muted-foreground">{config.hint}</span>
         </div>
       )}
 
@@ -326,7 +399,10 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
 
   return (
     <div className="space-y-5">
-      <CvUploadField token={token} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <SingleFileUploadField token={token} config={CV_CONFIG} />
+        <SingleFileUploadField token={token} config={PHOTO_CONFIG} />
+      </div>
 
       <FieldSeparator>Dokumen tambahan</FieldSeparator>
 

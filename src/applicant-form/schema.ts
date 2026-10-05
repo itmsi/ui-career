@@ -185,6 +185,7 @@ export const applicantFormSchema = z.object({
   willingToRelocate: yesNo,
 
   cvDocument: additionalDocumentSchema.refine((doc) => !!doc.file, 'CV wajib diunggah'),
+  photoDocument: additionalDocumentSchema,
   additionalDocuments: z.array(additionalDocumentSchema),
   applicantSignature: z.string(),
   signatureLink: z.string(),

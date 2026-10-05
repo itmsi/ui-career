@@ -24,7 +24,11 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
     .map((row, index) => ({ row, index }))
     .filter(({ row }) => Object.values(row).some((v) => v && v.trim()))
 
-  const uploadedDocuments = [values.cvDocument, ...values.additionalDocuments].filter(
+  const uploadedDocuments = [
+    values.cvDocument,
+    values.photoDocument,
+    ...values.additionalDocuments,
+  ].filter(
     (doc) => doc.file,
   )
 
