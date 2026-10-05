@@ -1,71 +1,87 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { format, isValid, parseISO } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
-import {
-  Controller,
-  type Control,
-  type FieldPath,
-  type RegisterOptions,
-} from 'react-hook-form'
+import type { Matcher } from 'react-day-picker'
+import { useController, type FieldPath } from 'react-hook-form'
 
 import { Calendar } from '@/components/ui/calendar'
+import { Field, FieldError } from '@/components/ui/field'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 import { inputHeightClass } from '../form-utils'
+import { FieldCaption } from './form-fields'
 import type { ApplicantFormValues } from '../types'
+
+type CalendarBounds = {
+  /** Days the applicant cannot pick. */
+  disabled?: Matcher | Matcher[]
+  /** First and last month reachable from the month/year dropdowns. */
+  startMonth?: Date
+  endMonth?: Date
+}
 
 export function DatePickerField({
   name,
-  control,
+  label,
+  required,
   placeholder = 'Pilih tanggal',
   className,
   id,
-  rules,
+  ...bounds
 }: {
   name: FieldPath<ApplicantFormValues>
-  control: Control<ApplicantFormValues>
+  label?: ReactNode
+  required?: boolean
   placeholder?: string
   className?: string
   id?: string
-  rules?: RegisterOptions<ApplicantFormValues, typeof name>
-}) {
+} & CalendarBounds) {
+  const { field, fieldState } = useController<ApplicantFormValues>({ name })
+  const buttonId = id ?? name
+
   return (
-    <Controller
-      control={control}
-      name={name}
-      rules={rules}
-      render={({ field, fieldState }) => (
-        <div className={cn('flex flex-col gap-1.5', className)}>
-          <DatePickerButton
-            id={id}
-            placeholder={placeholder}
-            className={cn(fieldState.error && 'border-destructive')}
-            value={typeof field.value === 'string' ? field.value : ''}
-            onChange={field.onChange}
-          />
-          {fieldState.error && (
-            <p className="text-sm font-normal text-destructive">{fieldState.error.message}</p>
-          )}
-        </div>
+    <Field data-invalid={!!fieldState.error} className={className}>
+      {label && (
+        <FieldCaption htmlFor={buttonId} required={required}>
+          {label}
+        </FieldCaption>
       )}
-    />
+      <DatePickerButton
+        id={buttonId}
+        buttonRef={field.ref}
+        placeholder={placeholder}
+        invalid={!!fieldState.error}
+        value={typeof field.value === 'string' ? field.value : ''}
+        onChange={(value) => {
+          field.onChange(value)
+          field.onBlur()
+        }}
+        {...bounds}
+      />
+      <FieldError errors={[fieldState.error]} />
+    </Field>
   )
 }
 
 function DatePickerButton({
   id,
+  buttonRef,
   placeholder,
-  className,
+  invalid,
   value,
   onChange,
+  disabled,
+  startMonth,
+  endMonth,
 }: {
   id?: string
+  buttonRef?: (element: HTMLButtonElement | null) => void
   placeholder: string
-  className?: string
+  invalid: boolean
   value: string
   onChange: (value: string) => void
-}) {
+} & CalendarBounds) {
   const [open, setOpen] = useState(false)
 
   const parsedValue = value ? parseISO(value) : undefined
@@ -78,11 +94,13 @@ function DatePickerButton({
           <button
             type="button"
             id={id}
+            ref={buttonRef}
+            aria-invalid={invalid}
             className={cn(
               inputHeightClass,
               'flex w-full items-center justify-between gap-2 border border-input bg-white/70 px-2.5 text-left text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30',
               !selectedDate && 'text-muted-foreground',
-              className,
+              invalid && 'border-destructive',
             )}
           >
             <span>{selectedDate ? format(selectedDate, 'dd/MM/yyyy') : placeholder}</span>
@@ -95,6 +113,10 @@ function DatePickerButton({
           mode="single"
           captionLayout="dropdown"
           selected={selectedDate}
+          defaultMonth={selectedDate}
+          disabled={disabled}
+          startMonth={startMonth}
+          endMonth={endMonth}
           onSelect={(date) => {
             onChange(date ? format(date, 'yyyy-MM-dd') : '')
             setOpen(false)

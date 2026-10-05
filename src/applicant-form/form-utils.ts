@@ -5,24 +5,27 @@ import { defaultValues, type ApplicantFormValues, type YesNo } from './types'
 export const captionLabelClass = 'text-[12.5px] font-semibold text-foreground/80'
 export const inputHeightClass = 'h-10 rounded-md'
 
-export const EDUCATION_ROWS: Array<{
-  key: keyof ApplicantFormValues['education']
-  label: string
-  typeOfSchool: string
-}> = [
-  { key: 'university', label: 'University/ Universitas', typeOfSchool: 'universitas' },
-  { key: 'highSchool', label: 'High School/ SMA', typeOfSchool: 'sma' },
-  { key: 'juniorSchool', label: 'Junior School/ SMP', typeOfSchool: 'smp' },
-  { key: 'elementarySchool', label: 'Elementary School/ SD', typeOfSchool: 'sd' },
-]
+export const BLOOD_TYPE_OPTIONS = ['A', 'B', 'O', 'AB'] as const
+export const MARITAL_STATUS_OPTIONS = ['Single', 'Married', 'Divorced', 'Widowed'] as const
+export const RELIGION_OPTIONS = [
+  'Islam',
+  'Kristen Protestan',
+  'Katolik',
+  'Hindu',
+  'Buddha',
+  'Konghucu',
+  'Lainnya',
+] as const
+export const LAST_EDUCATION_OPTIONS = ['S3', 'S2', 'S1', 'D3', 'D1', 'SMA', 'SMP', 'SD'] as const
 
 export const FAMILY_ROWS: Array<{
   key: keyof ApplicantFormValues['family']
   label: string
   relationship: string
+  required?: boolean
 }> = [
-  { key: 'father', label: 'Nama Ayah', relationship: 'ayah' },
-  { key: 'mother', label: 'Nama Ibu', relationship: 'ibu' },
+  { key: 'father', label: 'Nama Ayah', relationship: 'ayah', required: true },
+  { key: 'mother', label: 'Nama Ibu', relationship: 'ibu', required: true },
   { key: 'spouse', label: 'Nama Suami/ Istri', relationship: 'suami/istri' },
   { key: 'child1', label: 'Nama Anak ke-1 / Saudara ke-1', relationship: 'anak ke-1' },
   { key: 'child2', label: 'Nama Anak ke-2 / Saudara ke-2', relationship: 'anak ke-2' },
@@ -50,16 +53,42 @@ export const SCREENING_QUESTIONS: Array<{
   },
 ]
 
-export const REFERENCES_MIN = 2
+/** Rows that must stay in the list because the table marks them "Wajib Diisi". */
+export const WORK_EXPERIENCE_MIN = 1
+export const REFERENCES_MIN = 1
 
 export const DRAFT_STORAGE_KEY = 'applicant-form:draft'
 export const STEP_STORAGE_KEY = 'applicant-form:step'
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/**
+ * Overlays a saved draft onto `defaults`, keeping only the keys and value types the
+ * current form knows about. Drafts saved by an older version of the form (e.g. the
+ * old one-row-per-school education shape) would otherwise leave fields `undefined`.
+ */
+function mergeDraft<T>(defaults: T, draft: unknown): T {
+  if (Array.isArray(defaults)) {
+    if (!Array.isArray(draft)) return defaults
+    const template: unknown = defaults[0]
+    return (template === undefined ? draft : draft.map((item) => mergeDraft(template, item))) as T
+  }
+  if (isPlainObject(defaults)) {
+    if (!isPlainObject(draft)) return defaults
+    return Object.fromEntries(
+      Object.entries(defaults).map(([key, value]) => [key, mergeDraft(value, draft[key])]),
+    ) as T
+  }
+  return typeof draft === typeof defaults ? (draft as T) : defaults
+}
 
 export function loadDraftValues(): ApplicantFormValues {
   try {
     const raw = window.localStorage.getItem(DRAFT_STORAGE_KEY)
     if (!raw) return defaultValues
-    return { ...defaultValues, ...JSON.parse(raw) }
+    return mergeDraft(defaultValues, JSON.parse(raw))
   } catch {
     return defaultValues
   }

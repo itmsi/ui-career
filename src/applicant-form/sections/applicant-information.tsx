@@ -1,281 +1,144 @@
-import { Controller, type Control, type FieldErrors } from 'react-hook-form'
+import { addYears, startOfToday } from 'date-fns'
 
-import { Checkbox } from '@/components/ui/checkbox'
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
+import { FieldDescription, FieldGroup } from '@/components/ui/field'
 
 import { DatePickerField } from '../components/date-picker-field'
-import { captionLabelClass, inputHeightClass } from '../form-utils'
-import type { ApplicantFormValues, RegisterFn } from '../types'
+import { SelectField, TextField } from '../components/form-fields'
+import {
+  BLOOD_TYPE_OPTIONS,
+  MARITAL_STATUS_OPTIONS,
+  RELIGION_OPTIONS,
+} from '../form-utils'
 
-export function ApplicantInformationSection({
-  register,
-  control,
-  errors,
-}: {
-  register: RegisterFn
-  control: Control<ApplicantFormValues>
-  errors: FieldErrors<ApplicantFormValues>
-}) {
+export function ApplicantInformationSection() {
+  const today = startOfToday()
+
   return (
     <FieldGroup>
+      <FieldDescription>
+        Kolom bertanda <span className="text-destructive">*</span> wajib diisi.
+      </FieldDescription>
+
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field data-invalid={!!errors.fullName}>
-          <FieldLabel htmlFor="fullName" className={captionLabelClass}>
-            FULL NAME / Nama lengkap
-          </FieldLabel>
-          <Input
-            id="fullName"
-            aria-invalid={!!errors.fullName}
-            className={inputHeightClass}
-            {...register('fullName', {
-              required: 'Nama lengkap wajib diisi',
-            })}
-          />
-          <FieldError errors={[errors.fullName]} />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="nickname" className={captionLabelClass}>
-            NICKNAME / Nama panggilan
-          </FieldLabel>
-          <Input
-            id="nickname"
-            className={inputHeightClass}
-            {...register('nickname')}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="addressIdCard" className={captionLabelClass}>
-            ADDRESS AS PER ID CARD/ Alamat sesuai KTP
-          </FieldLabel>
-          <Textarea
-            id="addressIdCard"
-            rows={2}
-            className="rounded-lg"
-            {...register('addressIdCard')}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="presentAddress" className={captionLabelClass}>
-            PRESENT ADDRESS/ Alamat saat ini
-          </FieldLabel>
-          <Textarea
-            id="presentAddress"
-            rows={2}
-            className="rounded-lg"
-            {...register('presentAddress')}
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="mobile" className={captionLabelClass}>
-            MOBILE / Handphone
-          </FieldLabel>
-          <Input
-            id="mobile"
-            className={inputHeightClass}
-            {...register('mobile')}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="city" className={captionLabelClass}>
-            CITY/ Kota
-          </FieldLabel>
-          <Input id="city" className={inputHeightClass} {...register('city')} />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="emergencyContactInfo" className={captionLabelClass}>
-            NAME, RELATIONSHIP, AND EMERGENCY CONTACT NUMBER/ Nama, hubungan,
-            nomor kontak darurat
-          </FieldLabel>
-          <Textarea
-            id="emergencyContactInfo"
-            rows={2}
-            className="rounded-lg"
-            {...register('emergencyContactInfo')}
-          />
-        </Field>
-        <Field>
-          <FieldLabel className={captionLabelClass}>
-            PLACE, DATE OF BIRTH / Tempat, tanggal lahir
-          </FieldLabel>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Tempat lahir"
-              className={cn(inputHeightClass, 'min-w-0 flex-1')}
-              {...register('birthPlace')}
-            />
-            <DatePickerField
-              name="birthDate"
-              control={control}
-              className="min-w-0 flex-1"
-            />
-          </div>
-        </Field>
-
-        <Field data-invalid={!!errors.email}>
-          <FieldLabel htmlFor="email" className={captionLabelClass}>
-            EMAIL / Alamat email
-          </FieldLabel>
-          <Input
-            id="email"
-            type="email"
-            aria-invalid={!!errors.email}
-            className={inputHeightClass}
-            {...register('email', {
-              required: 'Email wajib diisi',
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Format email tidak valid',
-              },
-            })}
-          />
-          <FieldError errors={[errors.email]} />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="bloodType" className={captionLabelClass}>
-            BLOOD TYPE/ Golongan Darah
-          </FieldLabel>
-          <Input
-            id="bloodType"
-            className={inputHeightClass}
-            {...register('bloodType')}
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="idNumber" className={captionLabelClass}>
-            ID NUMBER/ No. KTP
-          </FieldLabel>
-          <Input
-            id="idNumber"
-            className={inputHeightClass}
-            {...register('idNumber')}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="taxId" className={captionLabelClass}>
-            TAX IDENTIFICATION NUMBER/ NPWP
-          </FieldLabel>
-          <Input id="taxId" className={inputHeightClass} {...register('taxId')} />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="positionApplied" className={captionLabelClass}>
-            POSITION APPLIED FOR/ Posisi yang dilamar
-          </FieldLabel>
-          <Input
-            id="positionApplied"
-            className={inputHeightClass}
-            {...register('positionApplied')}
-          />
-        </Field>
-        <Field data-invalid={!!errors.workingAvailableDate}>
-          <FieldLabel htmlFor="workingAvailableDate" className={captionLabelClass}>
-            WORKING AVAILABLE DATE/ Tanggal siap bekerja
-          </FieldLabel>
-          <DatePickerField
-            id="workingAvailableDate"
-            name="workingAvailableDate"
-            control={control}
-            rules={{ required: 'Tanggal siap bekerja wajib diisi' }}
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="maritalStatus" className={captionLabelClass}>
-            MARITAL STATUS/ Status pernikahan
-          </FieldLabel>
-          <Input
-            id="maritalStatus"
-            className={inputHeightClass}
-            {...register('maritalStatus')}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="religion" className={captionLabelClass}>
-            RELIGION/ Agama
-          </FieldLabel>
-          <Input
-            id="religion"
-            className={inputHeightClass}
-            {...register('religion')}
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="heightWeight" className={captionLabelClass}>
-            HEIGHT &amp; WEIGHT/ Tinggi &amp; berat badan
-          </FieldLabel>
-          <Input
-            id="heightWeight"
-            className={inputHeightClass}
-            {...register('heightWeight')}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="tshirtSize" className={captionLabelClass}>
-            T-SHIRT SIZE/ Ukuran kaos
-          </FieldLabel>
-          <Input
-            id="tshirtSize"
-            className={inputHeightClass}
-            {...register('tshirtSize')}
-          />
-        </Field>
+        <TextField name="fullName" label="FULL NAME / Nama lengkap" required maxLength={150} />
+        <TextField name="nickname" label="NICKNAME / Nama panggilan" required maxLength={50} />
+        <TextField
+          name="addressIdCard"
+          label="ADDRESS AS PER ID CARD / Alamat sesuai KTP"
+          required
+          multiline
+        />
+        <TextField
+          name="presentAddress"
+          label="PRESENT ADDRESS / Alamat saat ini"
+          required
+          multiline
+        />
+        <TextField
+          name="mobile"
+          label="MOBILE / Handphone"
+          type="tel"
+          inputMode="tel"
+          placeholder="cth. 081234567890"
+          required
+        />
+        <TextField
+          name="emergencyContactInfo"
+          label="NAME, RELATIONSHIP, AND EMERGENCY CONTACT NUMBER / Nama, hubungan, nomor kontak darurat"
+          placeholder="cth. Budi – Kakak – 081234567890"
+          required
+          multiline
+        />
+        <TextField
+          name="birthPlace"
+          label="PLACE OF BIRTH / Tempat lahir"
+          required
+          maxLength={100}
+        />
+        <DatePickerField
+          name="birthDate"
+          label="DATE OF BIRTH / Tanggal lahir"
+          required
+          disabled={{ after: today }}
+          startMonth={new Date(1940, 0)}
+          endMonth={today}
+        />
+        <TextField
+          name="email"
+          label="EMAIL / Alamat email"
+          type="email"
+          inputMode="email"
+          required
+        />
+        <SelectField
+          name="bloodType"
+          label="BLOOD TYPE / Golongan darah"
+          options={BLOOD_TYPE_OPTIONS}
+          placeholder="Pilih golongan darah"
+          required
+        />
+        <TextField
+          name="idNumber"
+          label="ID NUMBER / No. KTP"
+          inputMode="numeric"
+          placeholder="16 digit"
+          maxLength={16}
+          required
+        />
+        <TextField
+          name="positionApplied"
+          label="POSITION APPLIED FOR / Posisi yang dilamar"
+          required
+        />
+        <DatePickerField
+          name="workingAvailableDate"
+          label="WORKING AVAILABLE DATE / Tanggal siap bekerja"
+          required
+          disabled={{ before: today }}
+          startMonth={today}
+          endMonth={addYears(today, 2)}
+        />
+        <SelectField
+          name="maritalStatus"
+          label="MARITAL STATUS / Status pernikahan"
+          options={MARITAL_STATUS_OPTIONS}
+          placeholder="Pilih status pernikahan"
+          required
+        />
+        <SelectField
+          name="religion"
+          label="RELIGION / Agama"
+          options={RELIGION_OPTIONS}
+          placeholder="Pilih agama"
+          required
+        />
+        <TextField
+          name="heightWeight"
+          label="HEIGHT & WEIGHT / Tinggi & berat badan"
+          placeholder="cth. 170 cm / 65 kg"
+          required
+        />
+        <TextField
+          name="tshirtSize"
+          label="T-SHIRT SIZE / Ukuran kaos"
+          placeholder="cth. L"
+          maxLength={10}
+          required
+        />
+        <TextField
+          name="taxId"
+          label="TAX IDENTIFICATION NUMBER / NPWP"
+          inputMode="numeric"
+          placeholder="15 / 16 digit"
+          maxLength={20}
+        />
+        <TextField
+          name="driverLicense"
+          label="DRIVER'S LICENSE / Izin mengemudi"
+          placeholder="cth. SIM A, SIM C"
+        />
+        <TextField name="city" label="CITY / Kota" />
       </div>
-
-      <Field>
-        <FieldLabel className={captionLabelClass}>
-          DRIVER&apos;s LICENSE/ Izin mengemudi
-        </FieldLabel>
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-2 rounded-xl border border-border/70 p-4">
-          <Label className="flex items-center gap-2 text-sm">
-            <Controller
-              control={control}
-              name="driverLicense.simA"
-              render={({ field }) => (
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              )}
-            />
-            SIM A
-          </Label>
-          <Label className="flex items-center gap-2 text-sm">
-            <Controller
-              control={control}
-              name="driverLicense.simB"
-              render={({ field }) => (
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              )}
-            />
-            SIM B
-          </Label>
-          <Label className="flex items-center gap-2 text-sm">
-            <Controller
-              control={control}
-              name="driverLicense.simC"
-              render={({ field }) => (
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              )}
-            />
-            SIM C
-          </Label>
-          <Label className="flex items-center gap-2 text-sm">
-            <Controller
-              control={control}
-              name="driverLicense.sio"
-              render={({ field }) => (
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              )}
-            />
-            SIO
-          </Label>
-        </div>
-      </Field>
     </FieldGroup>
   )
 }

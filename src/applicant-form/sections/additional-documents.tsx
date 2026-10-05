@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { FileImage, FileText, Loader2, Trash2, UploadCloud, X } from 'lucide-react'
-import type { FieldArrayWithId } from 'react-hook-form'
+import { useFieldArray, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils'
 
 import { uploadApplicantFormFile } from '../api'
 import { captionLabelClass, inputHeightClass } from '../form-utils'
-import type { AdditionalDocumentItem, ApplicantFormValues } from '../types'
+import type { ApplicantFormValues } from '../types'
 
 export const MAX_ADDITIONAL_DOCUMENTS = 10
 export const MAX_ADDITIONAL_DOCUMENT_SIZE_BYTES = 2 * 1024 * 1024 // 2MB
@@ -26,17 +26,13 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export function AdditionalDocumentsSection({
-  token,
-  fields,
-  onAppend,
-  onRemove,
-}: {
-  token: string
-  fields: FieldArrayWithId<ApplicantFormValues, 'additionalDocuments', 'id'>[]
-  onAppend: (item: AdditionalDocumentItem) => void
-  onRemove: (index: number) => void
-}) {
+export function AdditionalDocumentsSection({ token }: { token: string }) {
+  const { control } = useFormContext<ApplicantFormValues>()
+  const {
+    fields,
+    append: onAppend,
+    remove: onRemove,
+  } = useFieldArray({ control, name: 'additionalDocuments' })
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [title, setTitle] = useState('')
