@@ -1,20 +1,21 @@
 import { useFormContext } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { Field } from '@/components/ui/field'
 
 import { DatePickerField } from '../components/date-picker-field'
-import { SignaturePadField } from '../components/signature-pad-field'
 import { FieldCaption } from '../components/form-fields'
+import { SignaturePadField } from '../components/signature-pad-field'
 import type { ApplicantFormValues } from '../types'
 
 export function SignatureSection({ token }: { token: string }) {
+  const { t } = useTranslation()
   const { control } = useFormContext<ApplicantFormValues>()
+
   return (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
       <Field className="sm:col-span-2">
-        <FieldCaption htmlFor="applicantSignature">
-          Signature of Applicant/ Tanda tangan pelamar
-        </FieldCaption>
+        <FieldCaption htmlFor="applicantSignature">{t('fields.signature')}</FieldCaption>
         <SignaturePadField
           name="applicantSignature"
           linkName="signatureLink"
@@ -23,7 +24,7 @@ export function SignatureSection({ token }: { token: string }) {
           token={token}
         />
       </Field>
-      <DatePickerField name="signatureDate" label="Signature Date / Tanggal Tanda Tangan" />
+      <DatePickerField name="signatureDate" label={t('fields.signatureDate')} />
     </div>
   )
 }

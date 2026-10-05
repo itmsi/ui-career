@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ export function EntryCard({
   onRemove?: () => void
   children: ReactNode
 }) {
+  const { t } = useTranslation()
   const gridColsClass =
     columns === 5
       ? 'sm:grid-cols-2 lg:grid-cols-5'
@@ -38,7 +40,7 @@ export function EntryCard({
           <p className="font-heading text-sm font-semibold">{label}</p>
           {required && (
             <Badge variant="destructive" className="self-center">
-              Wajib
+              {t('common.required')}
             </Badge>
           )}
         </div>
@@ -48,7 +50,7 @@ export function EntryCard({
             variant="ghost"
             size="icon-sm"
             onClick={onRemove}
-            aria-label="Hapus"
+            aria-label={t('common.remove')}
             className="text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="size-4" />

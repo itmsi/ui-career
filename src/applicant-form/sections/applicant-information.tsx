@@ -1,4 +1,5 @@
 import { addYears, startOfToday } from 'date-fns'
+import { Trans, useTranslation } from 'react-i18next'
 
 import { FieldDescription, FieldGroup } from '@/components/ui/field'
 
@@ -11,53 +12,42 @@ import {
 } from '../form-utils'
 
 export function ApplicantInformationSection() {
+  const { t } = useTranslation()
   const today = startOfToday()
 
   return (
     <FieldGroup>
       <FieldDescription>
-        Kolom bertanda <span className="text-destructive">*</span> wajib diisi.
+        <Trans
+          i18nKey="form.requiredLegend"
+          components={{ mark: <span className="text-destructive" /> }}
+        />
       </FieldDescription>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <TextField name="fullName" label="FULL NAME / Nama lengkap" required maxLength={150} />
-        <TextField name="nickname" label="NICKNAME / Nama panggilan" required maxLength={50} />
-        <TextField
-          name="addressIdCard"
-          label="ADDRESS AS PER ID CARD / Alamat sesuai KTP"
-          required
-          multiline
-        />
-        <TextField
-          name="presentAddress"
-          label="PRESENT ADDRESS / Alamat saat ini"
-          required
-          multiline
-        />
+        <TextField name="fullName" label={t('fields.fullName')} required maxLength={150} />
+        <TextField name="nickname" label={t('fields.nickname')} required maxLength={50} />
+        <TextField name="addressIdCard" label={t('fields.addressIdCard')} required multiline />
+        <TextField name="presentAddress" label={t('fields.presentAddress')} required multiline />
         <TextField
           name="mobile"
-          label="MOBILE / Handphone"
+          label={t('fields.mobile')}
           type="tel"
           inputMode="tel"
-          placeholder="cth. 081234567890"
+          placeholder={t('placeholders.mobile')}
           required
         />
         <TextField
           name="emergencyContactInfo"
-          label="NAME, RELATIONSHIP, AND EMERGENCY CONTACT NUMBER / Nama, hubungan, nomor kontak darurat"
-          placeholder="cth. Budi – Kakak – 081234567890"
+          label={t('fields.emergencyContactInfo')}
+          placeholder={t('placeholders.emergencyContactInfo')}
           required
           multiline
         />
-        <TextField
-          name="birthPlace"
-          label="PLACE OF BIRTH / Tempat lahir"
-          required
-          maxLength={100}
-        />
+        <TextField name="birthPlace" label={t('fields.birthPlace')} required maxLength={100} />
         <DatePickerField
           name="birthDate"
-          label="DATE OF BIRTH / Tanggal lahir"
+          label={t('fields.birthDate')}
           required
           disabled={{ after: today }}
           startMonth={new Date(1940, 0)}
@@ -65,34 +55,30 @@ export function ApplicantInformationSection() {
         />
         <TextField
           name="email"
-          label="EMAIL / Alamat email"
+          label={t('fields.email')}
           type="email"
           inputMode="email"
           required
         />
         <SelectField
           name="bloodType"
-          label="BLOOD TYPE / Golongan darah"
+          label={t('fields.bloodType')}
           options={BLOOD_TYPE_OPTIONS}
-          placeholder="Pilih golongan darah"
+          placeholder={t('placeholders.bloodType')}
           required
         />
         <TextField
           name="idNumber"
-          label="ID NUMBER / No. KTP"
+          label={t('fields.idNumber')}
           inputMode="numeric"
-          placeholder="16 digit"
+          placeholder={t('placeholders.idNumber')}
           maxLength={16}
           required
         />
-        <TextField
-          name="positionApplied"
-          label="POSITION APPLIED FOR / Posisi yang dilamar"
-          required
-        />
+        <TextField name="positionApplied" label={t('fields.positionApplied')} required />
         <DatePickerField
           name="workingAvailableDate"
-          label="WORKING AVAILABLE DATE / Tanggal siap bekerja"
+          label={t('fields.workingAvailableDate')}
           required
           disabled={{ before: today }}
           startMonth={today}
@@ -100,44 +86,50 @@ export function ApplicantInformationSection() {
         />
         <SelectField
           name="maritalStatus"
-          label="MARITAL STATUS / Status pernikahan"
+          label={t('fields.maritalStatus')}
           options={MARITAL_STATUS_OPTIONS}
-          placeholder="Pilih status pernikahan"
+          optionLabel={(option) =>
+            t(`options.maritalStatus.${option as (typeof MARITAL_STATUS_OPTIONS)[number]}`)
+          }
+          placeholder={t('placeholders.maritalStatus')}
           required
         />
         <SelectField
           name="religion"
-          label="RELIGION / Agama"
+          label={t('fields.religion')}
           options={RELIGION_OPTIONS}
-          placeholder="Pilih agama"
+          optionLabel={(option) =>
+            t(`options.religion.${option as (typeof RELIGION_OPTIONS)[number]}`)
+          }
+          placeholder={t('placeholders.religion')}
           required
         />
         <TextField
           name="heightWeight"
-          label="HEIGHT & WEIGHT / Tinggi & berat badan"
-          placeholder="cth. 170 cm / 65 kg"
+          label={t('fields.heightWeight')}
+          placeholder={t('placeholders.heightWeight')}
           required
         />
         <TextField
           name="tshirtSize"
-          label="T-SHIRT SIZE / Ukuran kaos"
-          placeholder="cth. L"
+          label={t('fields.tshirtSize')}
+          placeholder={t('placeholders.tshirtSize')}
           maxLength={10}
           required
         />
         <TextField
           name="taxId"
-          label="TAX IDENTIFICATION NUMBER / NPWP"
+          label={t('fields.taxId')}
           inputMode="numeric"
-          placeholder="15 / 16 digit"
+          placeholder={t('placeholders.taxId')}
           maxLength={20}
         />
         <TextField
           name="driverLicense"
-          label="DRIVER'S LICENSE / Izin mengemudi"
-          placeholder="cth. SIM A, SIM C"
+          label={t('fields.driverLicense')}
+          placeholder={t('placeholders.driverLicense')}
         />
-        <TextField name="city" label="CITY / Kota" />
+        <TextField name="city" label={t('fields.city')} />
       </div>
     </FieldGroup>
   )

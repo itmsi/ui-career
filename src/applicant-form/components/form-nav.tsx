@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 import { cn } from '@/lib/utils'
 
 function pad(n: number) {
@@ -52,6 +54,7 @@ function NavControls({
   onModeChange: (mode: NavMode) => void
   onToggleCollapse: () => void
 }) {
+  const { t } = useTranslation()
   // The bar rows are far shorter than the rail, so the shared `top-3.5` leaves the
   // buttons off-centre there — and overflowing a collapsed bar entirely.
   // Align each bar variant to its own text row instead:
@@ -70,7 +73,7 @@ function NavControls({
     <div className={cn('absolute z-10 flex gap-1.5', positionClass)}>
       <button
         type="button"
-        title={mode === 'rail' ? 'Switch to horizontal indicator' : 'Switch to sidebar indicator'}
+        title={mode === 'rail' ? t('nav.switchToBar') : t('nav.switchToRail')}
         onClick={() => onModeChange(mode === 'rail' ? 'bar' : 'rail')}
         className={cn(controlButtonClass, controlIdleClass)}
       >
@@ -78,7 +81,7 @@ function NavControls({
       </button>
       <button
         type="button"
-        title={collapsed ? 'Expand indicator' : 'Minimise indicator'}
+        title={collapsed ? t('nav.expand') : t('nav.minimise')}
         onClick={onToggleCollapse}
         className={cn(controlButtonClass, controlIdleClass)}
       >
@@ -139,6 +142,7 @@ export function FormNav({
   onModeChange: (mode: NavMode) => void
   onToggleCollapse: () => void
 }) {
+  const { t } = useTranslation()
   const total = steps.length
   // The current step already counts as reached, so the last step reads 100% — matches
   // the mockup's `(step + 1) / total`. Using `currentStep / total` capped a 9-step form
@@ -146,7 +150,7 @@ export function FormNav({
   const pct = Math.round(((currentStep + 1) / total) * 100)
   // Derived from `pct` so the label can never disagree with the number shown: only the
   // final step (100%) reads as done, every earlier step is still being filled in.
-  const progressLabel = pct === 100 ? 'complete' : 'On Progress'
+  const progressLabel = pct === 100 ? t('nav.complete') : t('nav.inProgress')
 
   const controls = (
     <NavControls
@@ -255,10 +259,8 @@ export function FormNav({
         </div>
 
         <div className="mt-auto border-t border-sidebar-foreground/15 pt-3.5">
-          <div className="text-[11px] font-semibold opacity-55">Draft autosaved</div>
-          <div className="mt-1 text-[12px] leading-snug opacity-65">
-            Tutup halaman ini dan lanjutkan nanti lewat tautan yang kami kirim ke email Anda.
-          </div>
+          <div className="text-[11px] font-semibold opacity-55">{t('nav.draftAutosaved')}</div>
+          <div className="mt-1 text-[12px] leading-snug opacity-65">{t('nav.resumeLater')}</div>
         </div>
         </div>
       </>
@@ -305,7 +307,7 @@ export function FormNav({
           />
         </div>
         <span className="text-[11px] font-semibold opacity-55 mt-1">
-          {pct}% {progressLabel} · draft autosaved
+          {pct}% {progressLabel} · {t('nav.draftAutosaved')}
         </span>
       </div>
       <div className="mt-5 flex gap-[2px] overflow-x-auto">

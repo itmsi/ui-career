@@ -1,6 +1,8 @@
 import { format } from 'date-fns'
 import { z } from 'zod'
 
+import type { TranslationKey } from '@/i18n/use-language'
+
 import {
   BLOOD_TYPE_OPTIONS,
   LAST_EDUCATION_OPTIONS,
@@ -14,7 +16,9 @@ const KTP_PATTERN = /^\d{16}$/
 const YEAR_PATTERN = /^(19|20)\d{2}$/
 const AGE_PATTERN = /^\d{1,3}$/
 
-const PHONE_MESSAGE = 'Format nomor telepon tidak valid (9–15 digit, boleh diawali +)'
+// Messages are translation keys; the UI translates them when it shows the error,
+// so a visible error follows the language switcher without re-validating.
+const PHONE_MESSAGE: TranslationKey = 'validation.phoneFormat'
 
 const isPhone = (value: string) => PHONE_PATTERN.test(value.replace(/[\s\-().]/g, ''))
 const isKtp = (value: string) => KTP_PATTERN.test(value.replace(/\s/g, ''))
@@ -25,29 +29,29 @@ const isNpwp = (value: string) => {
 const today = () => format(new Date(), 'yyyy-MM-dd')
 const isBlank = (value: string) => !value.trim()
 
-const requiredText = (message: string) => z.string().trim().min(1, message)
+const requiredText = (message: TranslationKey) => z.string().trim().min(1, message)
 
 /** Optional text that must match `test` once the applicant fills it in. */
-const optionalFormat = (test: (value: string) => boolean, message: string) =>
+const optionalFormat = (test: (value: string) => boolean, message: TranslationKey) =>
   z.string().refine((value) => isBlank(value) || test(value.trim()), message)
 
-const requiredOption = (options: readonly string[], message: string) =>
+const requiredOption = (options: readonly string[], message: TranslationKey) =>
   z.string().refine((value) => options.includes(value), message)
 
 // The explicit `boolean` return keeps TS from inferring a type predicate, which
 // would make zod narrow the output to 'yes' | 'no' and break the '' default.
 const yesNo = z
   .enum(['', 'yes', 'no'])
-  .refine((value): boolean => value !== '', 'Silakan pilih Ya atau Tidak')
+  .refine((value): boolean => value !== '', 'validation.yesNoRequired')
 
 const educationSchema = z.object({
-  schoolName: requiredText('Nama institusi wajib diisi'),
-  location: requiredText('Lokasi wajib diisi'),
-  graduate: requiredText('Gelar kelulusan wajib diisi'),
-  major: requiredText('Jurusan wajib diisi'),
-  graduationYear: requiredText('Tahun lulus wajib diisi').refine(
+  schoolName: requiredText('validation.schoolNameRequired'),
+  location: requiredText('validation.locationRequired'),
+  graduate: requiredText('validation.graduateRequired'),
+  major: requiredText('validation.majorRequired'),
+  graduationYear: requiredText('validation.graduationYearRequired').refine(
     (value) => YEAR_PATTERN.test(value),
-    'Tahun lulus harus 4 digit (cth. 2020)',
+    'validation.graduationYearFormat',
   ),
 })
 
@@ -61,7 +65,7 @@ const informalEducationRowSchema = z.object({
 
 const familyRowSchema = z.object({
   name: z.string(),
-  age: optionalFormat((value) => AGE_PATTERN.test(value), 'Usia harus berupa angka'),
+  age: optionalFormat((value) => AGE_PATTERN.test(value), 'validation.ageFormat'),
   employment: z.string(),
   emergencyContact: optionalFormat(isPhone, PHONE_MESSAGE),
 })
@@ -89,39 +93,39 @@ const additionalDocumentSchema = z.object({
 
 export const applicantFormSchema = z.object({
   // 1. Applicant Information — wajib
-  fullName: requiredText('Nama lengkap wajib diisi'),
-  nickname: requiredText('Nama panggilan wajib diisi'),
-  addressIdCard: requiredText('Alamat sesuai KTP wajib diisi'),
-  presentAddress: requiredText('Alamat saat ini wajib diisi'),
-  mobile: requiredText('Nomor handphone wajib diisi').refine(isPhone, PHONE_MESSAGE),
-  emergencyContactInfo: requiredText('Kontak darurat wajib diisi'),
-  birthPlace: requiredText('Tempat lahir wajib diisi'),
-  birthDate: requiredText('Tanggal lahir wajib diisi').refine(
+  fullName: requiredText('validation.fullNameRequired'),
+  nickname: requiredText('validation.nicknameRequired'),
+  addressIdCard: requiredText('validation.addressIdCardRequired'),
+  presentAddress: requiredText('validation.presentAddressRequired'),
+  mobile: requiredText('validation.mobileRequired').refine(isPhone, PHONE_MESSAGE),
+  emergencyContactInfo: requiredText('validation.emergencyContactRequired'),
+  birthPlace: requiredText('validation.birthPlaceRequired'),
+  birthDate: requiredText('validation.birthDateRequired').refine(
     (value) => value < today(),
-    'Tanggal lahir harus sebelum hari ini',
+    'validation.birthDatePast',
   ),
-  email: requiredText('Email wajib diisi').refine(
+  email: requiredText('validation.emailRequired').refine(
     (value) => EMAIL_PATTERN.test(value),
-    'Format email tidak valid',
+    'validation.emailFormat',
   ),
-  bloodType: requiredOption(BLOOD_TYPE_OPTIONS, 'Golongan darah wajib dipilih'),
-  idNumber: requiredText('No. KTP wajib diisi').refine(isKtp, 'No. KTP harus 16 digit angka'),
-  positionApplied: requiredText('Posisi yang dilamar wajib diisi'),
-  workingAvailableDate: requiredText('Tanggal siap bekerja wajib diisi').refine(
+  bloodType: requiredOption(BLOOD_TYPE_OPTIONS, 'validation.bloodTypeRequired'),
+  idNumber: requiredText('validation.idNumberRequired').refine(isKtp, 'validation.idNumberFormat'),
+  positionApplied: requiredText('validation.positionAppliedRequired'),
+  workingAvailableDate: requiredText('validation.workingAvailableDateRequired').refine(
     (value) => value >= today(),
-    'Tanggal siap bekerja tidak boleh sebelum hari ini',
+    'validation.workingAvailableDateFuture',
   ),
-  maritalStatus: requiredOption(MARITAL_STATUS_OPTIONS, 'Status pernikahan wajib dipilih'),
-  religion: requiredOption(RELIGION_OPTIONS, 'Agama wajib dipilih'),
-  heightWeight: requiredText('Tinggi & berat badan wajib diisi'),
-  tshirtSize: requiredText('Ukuran kaos wajib diisi'),
+  maritalStatus: requiredOption(MARITAL_STATUS_OPTIONS, 'validation.maritalStatusRequired'),
+  religion: requiredOption(RELIGION_OPTIONS, 'validation.religionRequired'),
+  heightWeight: requiredText('validation.heightWeightRequired'),
+  tshirtSize: requiredText('validation.tshirtSizeRequired'),
   // 1. Applicant Information — tidak wajib
   city: z.string(),
-  taxId: optionalFormat(isNpwp, 'NPWP harus 15 atau 16 digit angka'),
+  taxId: optionalFormat(isNpwp, 'validation.taxIdFormat'),
   driverLicense: z.string(),
 
   // 2. Educational History
-  lastEducation: requiredOption(LAST_EDUCATION_OPTIONS, 'Pendidikan terakhir wajib dipilih'),
+  lastEducation: requiredOption(LAST_EDUCATION_OPTIONS, 'validation.lastEducationRequired'),
   education: educationSchema,
 
   // 3. Informal Education and Special Qualification — semua tidak wajib
@@ -129,8 +133,8 @@ export const applicantFormSchema = z.object({
 
   // 4. Family Background — ayah & ibu wajib
   family: z.object({
-    father: familyRowSchema.extend({ name: requiredText('Nama ayah wajib diisi') }),
-    mother: familyRowSchema.extend({ name: requiredText('Nama ibu wajib diisi') }),
+    father: familyRowSchema.extend({ name: requiredText('validation.fatherNameRequired') }),
+    mother: familyRowSchema.extend({ name: requiredText('validation.motherNameRequired') }),
     spouse: familyRowSchema,
     child1: familyRowSchema,
     child2: familyRowSchema,
@@ -142,20 +146,20 @@ export const applicantFormSchema = z.object({
   workExperience: z.array(workExperienceRowSchema).superRefine((rows, ctx) => {
     const first = rows[0]
     if (!first) {
-      ctx.addIssue({ code: 'custom', message: 'Pengalaman kerja / magang 1 wajib diisi', path: [] })
+      ctx.addIssue({ code: 'custom', message: 'validation.workExperienceRequired', path: [] })
       return
     }
     if (isBlank(first.companyName)) {
-      ctx.addIssue({ code: 'custom', message: 'Nama perusahaan wajib diisi', path: [0, 'companyName'] })
+      ctx.addIssue({ code: 'custom', message: 'validation.companyNameRequired', path: [0, 'companyName'] })
     }
     if (isBlank(first.dateFrom)) {
-      ctx.addIssue({ code: 'custom', message: 'Tanggal mulai wajib diisi', path: [0, 'dateFrom'] })
+      ctx.addIssue({ code: 'custom', message: 'validation.dateFromRequired', path: [0, 'dateFrom'] })
     }
     rows.forEach((row, index) => {
       if (row.dateFrom && row.dateFinal && row.dateFinal < row.dateFrom) {
         ctx.addIssue({
           code: 'custom',
-          message: 'Tanggal terakhir tidak boleh sebelum tanggal mulai',
+          message: 'validation.dateFinalAfterFrom',
           path: [index, 'dateFinal'],
         })
       }
@@ -166,13 +170,13 @@ export const applicantFormSchema = z.object({
   references: z.array(referenceRowSchema).superRefine((rows, ctx) => {
     const first = rows[0]
     if (!first) {
-      ctx.addIssue({ code: 'custom', message: 'Referensi 1 wajib diisi', path: [] })
+      ctx.addIssue({ code: 'custom', message: 'validation.referenceRequired', path: [] })
       return
     }
-    const required: Array<[keyof typeof first, string]> = [
-      ['name', 'Nama referensi wajib diisi'],
-      ['position', 'Jabatan referensi wajib diisi'],
-      ['phone', 'Telepon referensi wajib diisi'],
+    const required: Array<[keyof typeof first, TranslationKey]> = [
+      ['name', 'validation.referenceNameRequired'],
+      ['position', 'validation.referencePositionRequired'],
+      ['phone', 'validation.referencePhoneRequired'],
     ]
     for (const [key, message] of required) {
       if (isBlank(first[key])) ctx.addIssue({ code: 'custom', message, path: [0, key] })
@@ -184,7 +188,7 @@ export const applicantFormSchema = z.object({
   hasUsedDrugs: yesNo,
   willingToRelocate: yesNo,
 
-  cvDocument: additionalDocumentSchema.refine((doc) => !!doc.file, 'CV wajib diunggah'),
+  cvDocument: additionalDocumentSchema.refine((doc) => !!doc.file, 'validation.cvRequired'),
   photoDocument: additionalDocumentSchema,
   additionalDocuments: z.array(additionalDocumentSchema),
   applicantSignature: z.string(),

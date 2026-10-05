@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FileImage, FileText, Loader2, Trash2, UploadCloud, X } from 'lucide-react'
 import { useController, useFieldArray, useFormContext } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Field, FieldError, FieldLabel, FieldSeparator } from '@/components/ui/field'
+import { Field, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import type { TranslationKey } from '@/i18n/use-language'
 import { ApiError } from '@/lib/api-client'
 import { cn } from '@/lib/utils'
 
 import { uploadApplicantFormFile } from '../api'
-import { FieldCaption } from '../components/form-fields'
+import { FieldCaption, FormFieldError } from '../components/form-fields'
 import { usePendingUpload } from '../pending-uploads'
 import { captionLabelClass, inputHeightClass } from '../form-utils'
 import type { ApplicantFormValues } from '../types'
@@ -30,49 +32,81 @@ function formatFileSize(bytes: number) {
 
 type SingleFileConfig = {
   name: 'cvDocument' | 'photoDocument'
-  label: string
   /** `file_title` sent to the upload endpoint. */
   fileTitle: string
-  /** Short name used in messages, e.g. "CV" or "Foto". */
-  noun: string
   acceptAttr: string
   acceptedMimeTypes: string[]
-  formatError: string
-  dropzoneText: string
-  hint: string
   /** Show the picked / uploaded file as an image thumbnail. */
   image?: boolean
   required?: boolean
+  /** Translation keys for every piece of text this slot shows. */
+  text: {
+    label: TranslationKey
+    invalidType: TranslationKey
+    tooLarge: TranslationKey
+    uploading: TranslationKey
+    uploaded: TranslationKey
+    uploadFailed: TranslationKey
+    removed: TranslationKey
+    replaces: TranslationKey
+    view: TranslationKey
+    remove: TranslationKey
+    dropzone: TranslationKey
+    hint: TranslationKey
+    pendingLabel: TranslationKey
+  }
 }
 
 const CV_CONFIG: SingleFileConfig = {
   name: 'cvDocument',
-  label: 'CV / Curriculum Vitae',
   fileTitle: 'CV',
-  noun: 'CV',
   acceptAttr: '.pdf,application/pdf',
   acceptedMimeTypes: ['application/pdf'],
-  formatError: 'CV harus berformat PDF.',
-  dropzoneText: 'Klik atau seret CV ke sini',
-  hint: 'PDF · maks. 2MB',
   required: true,
+  text: {
+    label: 'fields.cv',
+    invalidType: 'documents.cvMustBePdf',
+    tooLarge: 'documents.cvTooLarge',
+    uploading: 'documents.cvUploading',
+    uploaded: 'documents.cvUploaded',
+    uploadFailed: 'documents.cvUploadFailed',
+    removed: 'documents.cvRemoved',
+    replaces: 'documents.cvReplaces',
+    view: 'documents.viewCv',
+    remove: 'documents.removeCv',
+    dropzone: 'documents.cvDropzone',
+    hint: 'documents.cvHint',
+    pendingLabel: 'pendingUpload.cvLabel',
+  },
 }
 
 const PHOTO_CONFIG: SingleFileConfig = {
   name: 'photoDocument',
-  label: 'Pas Foto / Photo',
   fileTitle: 'Foto',
-  noun: 'Foto',
   acceptAttr: '.png,.jpg,.jpeg,.webp',
   acceptedMimeTypes: ['image/png', 'image/jpeg', 'image/webp'],
-  formatError: 'Foto harus berformat PNG, JPG, JPEG, atau WEBP.',
-  dropzoneText: 'Klik atau seret foto ke sini',
-  hint: 'PNG, JPG, JPEG, atau WEBP · maks. 2MB',
   image: true,
+  text: {
+    label: 'fields.photo',
+    invalidType: 'documents.photoInvalidType',
+    tooLarge: 'documents.photoTooLarge',
+    uploading: 'documents.photoUploading',
+    uploaded: 'documents.photoUploaded',
+    uploadFailed: 'documents.photoUploadFailed',
+    removed: 'documents.photoRemoved',
+    replaces: 'documents.photoReplaces',
+    view: 'documents.viewPhoto',
+    remove: 'documents.removePhoto',
+    dropzone: 'documents.photoDropzone',
+    hint: 'documents.photoHint',
+    pendingLabel: 'pendingUpload.photoLabel',
+  },
 }
 
 /** A dedicated single-file slot: staged first, uploaded on "Upload". */
 function SingleFileUploadField({ token, config }: { token: string; config: SingleFileConfig }) {
+  const { t } = useTranslation()
+  const { text } = config
   const {
     field: { ref, ...field },
     fieldState,
@@ -109,7 +143,7 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
 
   usePendingUpload(
     config.name,
-    pendingFile ? `${config.noun}: ${pendingFile.name}` : null,
+    pendingFile ? t(text.pendingLabel, { name: pendingFile.name }) : null,
     cancelPending,
   )
 
@@ -119,11 +153,11 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
 
   function stageFile(file: File) {
     if (!config.acceptedMimeTypes.includes(file.type)) {
-      toast.error(config.formatError)
+      toast.error(t(text.invalidType))
       return
     }
     if (file.size > MAX_ADDITIONAL_DOCUMENT_SIZE_BYTES) {
-      toast.error(`Ukuran ${config.noun} maksimal 2MB.`)
+      toast.error(t(text.tooLarge))
       return
     }
     setPendingFile(file)
@@ -135,7 +169,7 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
 
   async function handleUpload() {
     if (!pendingFile) return
-    const toastId = toast.loading(`Mengunggah ${config.noun}...`)
+    const toastId = toast.loading(t(text.uploading))
     setUploading(true)
     try {
       const result = await uploadApplicantFormFile(token, pendingFile, config.fileTitle)
@@ -145,9 +179,9 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
       field.onChange(result)
       field.onBlur()
       setPendingFile(null)
-      toast.success(`${config.noun} berhasil diunggah.`, { id: toastId })
+      toast.success(t(text.uploaded), { id: toastId })
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : `Gagal mengunggah ${config.noun}.`, {
+      toast.error(err instanceof ApiError ? err.message : t(text.uploadFailed), {
         id: toastId,
       })
     } finally {
@@ -158,13 +192,13 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
   function handleRemove() {
     field.onChange({ file_title: '', file_type: '', file: '' })
     field.onBlur()
-    toast.success(`${config.noun} dihapus.`)
+    toast.success(t(text.removed))
   }
 
   return (
     <Field data-invalid={!!fieldState.error}>
       <FieldCaption htmlFor={config.name} required={config.required}>
-        {config.label}
+        {t(text.label)}
       </FieldCaption>
 
       <input
@@ -197,7 +231,7 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
               <p className="truncate text-sm font-medium text-foreground">{pendingFile.name}</p>
               <p className="text-xs text-muted-foreground">
                 {formatFileSize(pendingFile.size)}
-                {uploaded.file && ` · akan menggantikan ${config.noun} sebelumnya`}
+                {uploaded.file && ` · ${t(text.replaces)}`}
               </p>
             </div>
           </div>
@@ -209,7 +243,7 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
               onClick={cancelPending}
               disabled={uploading}
             >
-              Batal
+              {t('common.cancel')}
             </Button>
             <Button type="button" size="sm" onClick={handleUpload} disabled={uploading}>
               {uploading ? (
@@ -217,7 +251,7 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
               ) : (
                 <UploadCloud className="size-4" />
               )}
-              {uploading ? 'Mengunggah...' : 'Upload'}
+              {uploading ? t('common.uploading') : t('common.upload')}
             </Button>
           </div>
         </div>
@@ -244,21 +278,21 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
                 rel="noreferrer"
                 className="truncate text-xs text-muted-foreground hover:text-primary hover:underline"
               >
-                Lihat {config.noun}
+                {t(text.view)}
               </a>
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <Button type="button" variant="outline" size="sm" onClick={openPicker}>
               <UploadCloud className="size-4" />
-              Ganti
+              {t('common.change')}
             </Button>
             <Button
               type="button"
               variant="ghost"
               size="icon-sm"
               onClick={handleRemove}
-              aria-label={`Hapus ${config.noun}`}
+              aria-label={t(text.remove)}
               className="text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="size-4" />
@@ -299,17 +333,18 @@ function SingleFileUploadField({ token, config }: { token: string; config: Singl
           <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-105">
             <Icon className="size-5" />
           </span>
-          <span className="text-sm font-medium text-foreground">{config.dropzoneText}</span>
-          <span className="text-xs text-muted-foreground">{config.hint}</span>
+          <span className="text-sm font-medium text-foreground">{t(text.dropzone)}</span>
+          <span className="text-xs text-muted-foreground">{t(text.hint)}</span>
         </div>
       )}
 
-      <FieldError errors={[fieldState.error]} />
+      <FormFieldError error={fieldState.error} />
     </Field>
   )
 }
 
 export function AdditionalDocumentsSection({ token }: { token: string }) {
+  const { t } = useTranslation()
   const { control } = useFormContext<ApplicantFormValues>()
   const {
     fields,
@@ -340,21 +375,23 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
 
   usePendingUpload(
     'additional-document',
-    pendingFile ? `Dokumen tambahan: ${title.trim() || pendingFile.name}` : null,
+    pendingFile
+      ? t('pendingUpload.documentLabel', { name: title.trim() || pendingFile.name })
+      : null,
     cancelPending,
   )
 
   function stageFile(file: File) {
     if (!ACCEPTED_MIME_TYPES.includes(file.type)) {
-      toast.error('Format file harus PNG, JPG, JPEG, WEBP, atau PDF.')
+      toast.error(t('documents.invalidType'))
       return
     }
     if (file.size > MAX_ADDITIONAL_DOCUMENT_SIZE_BYTES) {
-      toast.error('Ukuran file maksimal 2MB.')
+      toast.error(t('documents.tooLarge'))
       return
     }
     if (!canAdd) {
-      toast.error(`Maksimal ${MAX_ADDITIONAL_DOCUMENTS} file.`)
+      toast.error(t('documents.maxFiles', { max: MAX_ADDITIONAL_DOCUMENTS }))
       return
     }
     setPendingFile(file)
@@ -388,21 +425,21 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
   async function handleUpload() {
     if (!pendingFile) return
     if (!title.trim()) {
-      toast.error('Isi judul dokumen terlebih dahulu / Please fill in the document title first.')
+      toast.error(t('documents.titleRequired'))
       return
     }
 
     const documentTitle = title.trim()
-    const toastId = toast.loading(`Mengunggah ${documentTitle}...`)
+    const toastId = toast.loading(t('documents.uploadingFile', { title: documentTitle }))
     setUploading(true)
     try {
       const result = await uploadApplicantFormFile(token, pendingFile, documentTitle)
       onAppend(result)
-      toast.success(`${result.file_title} berhasil diunggah.`, { id: toastId })
+      toast.success(t('documents.uploaded', { title: result.file_title }), { id: toastId })
       setPendingFile(null)
       setTitle('')
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : 'Gagal mengunggah dokumen.', {
+      toast.error(err instanceof ApiError ? err.message : t('documents.uploadFailed'), {
         id: toastId,
       })
     } finally {
@@ -412,7 +449,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
 
   function handleRemove(index: number, fileTitle: string) {
     onRemove(index)
-    toast.success(`${fileTitle} dihapus.`)
+    toast.success(t('documents.removed', { title: fileTitle }))
   }
 
   return (
@@ -422,7 +459,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
         <SingleFileUploadField token={token} config={PHOTO_CONFIG} />
       </div>
 
-      <FieldSeparator>Dokumen tambahan</FieldSeparator>
+      <FieldSeparator>{t('documents.additionalSeparator')}</FieldSeparator>
 
       <div className="flex items-center justify-end">
         <Badge
@@ -432,7 +469,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
             !canAdd && 'border-destructive/40 text-destructive',
           )}
         >
-          {fields.length}/{MAX_ADDITIONAL_DOCUMENTS} dokumen
+          {t('documents.counter', { count: fields.length, max: MAX_ADDITIONAL_DOCUMENTS })}
         </Badge>
       </div>
 
@@ -468,7 +505,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
               size="icon-sm"
               onClick={cancelPending}
               disabled={uploading}
-              aria-label="Batal"
+              aria-label={t('common.cancel')}
               className="absolute -top-2.5 -right-2.5 rounded-full bg-background text-muted-foreground shadow-sm hover:text-destructive"
             >
               <X className="size-4" />
@@ -484,12 +521,12 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
 
           <Field>
             <FieldLabel className={captionLabelClass}>
-              Judul Dokumen / Document Title
+              {t('documents.titleLabel')}
             </FieldLabel>
             <Input
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              placeholder="mis. Sertifikat, contoh: Certificate"
+              placeholder={t('documents.titlePlaceholder')}
               className={inputHeightClass}
               disabled={uploading}
               autoFocus
@@ -504,7 +541,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
               onClick={cancelPending}
               disabled={uploading}
             >
-              Batal
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
@@ -517,7 +554,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
               ) : (
                 <UploadCloud className="size-4" />
               )}
-              {uploading ? 'Mengunggah...' : 'Upload'}
+              {uploading ? t('common.uploading') : t('common.upload')}
             </Button>
           </div>
         </div>
@@ -546,9 +583,9 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
           <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-105">
             <UploadCloud className="size-5" />
           </span>
-          <span className="text-sm font-medium text-foreground">Klik atau seret file ke sini</span>
+          <span className="text-sm font-medium text-foreground">{t('documents.dropzone')}</span>
           <span className="text-xs text-muted-foreground">
-            PNG, JPG, JPEG, WEBP, atau PDF · maks. 2MB
+            {t('documents.hint')}
           </span>
           <input
             ref={inputRef}
@@ -560,7 +597,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
         </div>
       ) : (
         <p className="rounded-xl border-2 border-dashed border-input bg-muted/30 p-4 text-center text-sm text-muted-foreground italic">
-          Batas maksimal {MAX_ADDITIONAL_DOCUMENTS} dokumen sudah tercapai.
+          {t('documents.limitReached', { max: MAX_ADDITIONAL_DOCUMENTS })}
         </p>
       )}
 
@@ -586,7 +623,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
                         variant="outline"
                         className="h-4 rounded-sm px-1.5 text-[10px] font-semibold uppercase"
                       >
-                        {isImage ? 'Image' : 'PDF'}
+                        {isImage ? t('documents.typeImage') : t('documents.typePdf')}
                       </Badge>
                       <a
                         href={field.file}
@@ -594,7 +631,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
                         rel="noreferrer"
                         className="truncate text-xs text-muted-foreground hover:text-primary hover:underline"
                       >
-                        Lihat dokumen
+                        {t('documents.viewDocument')}
                       </a>
                     </div>
                   </div>
@@ -604,7 +641,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
                   variant="ghost"
                   size="icon-sm"
                   onClick={() => handleRemove(index, field.file_title)}
-                  aria-label="Hapus"
+                  aria-label={t('common.remove')}
                   className="shrink-0 text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="size-4" />
@@ -616,8 +653,7 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
       )}
 
       <p className="text-xs text-muted-foreground">
-        Format PNG, JPG, JPEG, WEBP, atau PDF. Maks. 2MB per file, maksimal{' '}
-        {MAX_ADDITIONAL_DOCUMENTS} file.
+        {t('documents.footnote', { max: MAX_ADDITIONAL_DOCUMENTS })}
       </p>
     </div>
   )

@@ -9,10 +9,12 @@ import {
   type FieldErrors,
   type FieldPath,
 } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { LanguageSwitcher } from '@/components/language-switcher'
 import { cn } from '@/lib/utils'
 import { ApiError } from '@/lib/api-client'
 
@@ -42,8 +44,8 @@ type FormStep = {
   content: React.ReactNode
 }
 
-const INCOMPLETE_FORM_MESSAGE =
-  'Masih ada data wajib yang belum lengkap atau tidak valid. Silakan periksa kembali.'
+/** Kept as data rather than text so a shown error follows the language switcher. */
+type SubmitError = { kind: 'incomplete' } | { kind: 'failed'; serverMessage?: string }
 
 export function ApplicantForm({
   token,
@@ -71,7 +73,8 @@ export function ApplicantForm({
     reset,
     formState: { isSubmitting },
   } = form
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const { t } = useTranslation()
+  const [submitError, setSubmitError] = useState<SubmitError | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [step, setStep] = useState(loadDraftStep)
   const [navMode, setNavMode] = useState<'rail' | 'bar'>('rail')
@@ -123,11 +126,10 @@ export function ApplicantForm({
     try {
       await submitApplicantForm(token, data)
     } catch (error) {
-      setSubmitError(
-        error instanceof ApiError
-          ? error.message
-          : 'Gagal mengirim lamaran. Silakan coba lagi.',
-      )
+      setSubmitError({
+        kind: 'failed',
+        serverMessage: error instanceof ApiError ? error.message : undefined,
+      })
       return
     }
 
@@ -147,8 +149,8 @@ export function ApplicantForm({
 
   const steps: FormStep[] = [
     {
-      title: 'Applicant Information',
-      description: 'Informasi Pelamar',
+      title: t('steps.applicantInformation.title'),
+      description: t('steps.applicantInformation.description'),
       fields: [
         'fullName',
         'nickname',
@@ -174,59 +176,56 @@ export function ApplicantForm({
       content: <ApplicantInformationSection />,
     },
     {
-      title: 'Educational History',
-      description: 'Latar Belakang Pendidikan',
+      title: t('steps.educationalHistory.title'),
+      description: t('steps.educationalHistory.description'),
       fields: ['lastEducation', 'education'],
       content: <EducationalBackgroundSection />,
     },
     {
-      title: 'Informal Education and Special Qualification',
-      description: 'Pendidikan Informal dan Keterampilan Khusus',
+      title: t('steps.informalEducation.title'),
+      description: t('steps.informalEducation.description'),
       fields: ['informalEducation'],
       content: <InformalEducationSection />,
     },
     {
-      title: 'Family Background',
-      description: 'Latar Belakang Keluarga',
+      title: t('steps.familyBackground.title'),
+      description: t('steps.familyBackground.description'),
       fields: ['family'],
       content: <FamilyBackgroundSection />,
     },
     {
-      title: 'Working Experiences',
-      description: 'Pengalaman Kerja / Magang — pengalaman kerja / magang 1 wajib diisi',
+      title: t('steps.workingExperiences.title'),
+      description: t('steps.workingExperiences.description'),
       fields: ['workExperience'],
       content: <WorkingExperiencesSection />,
     },
     {
-      title: 'References',
-      description:
-        'Please list your references (HR & User) — Sebutkan referensi Anda (HR & Atasan Langsung); referensi 1 wajib diisi',
+      title: t('steps.references.title'),
+      description: t('steps.references.description'),
       fields: ['references'],
       content: <ReferencesSection />,
     },
     {
-      title: 'Please select one of the following answers',
-      description: 'Silahkan pilih salah satu jawaban dari pertanyaan berikut (wajib diisi)',
+      title: t('steps.screening.title'),
+      description: t('steps.screening.description'),
       fields: ['hasCriminalRecord', 'hasUsedDrugs', 'willingToRelocate'],
       content: <ScreeningQuestionsSection />,
     },
     {
-      title: 'Additional Document',
-      description:
-        'Unggah CV (wajib), pas foto, dan dokumen pendukung tambahan (opsional) / Upload your CV (required), photo, and additional supporting documents (optional)',
+      title: t('steps.additionalDocuments.title'),
+      description: t('steps.additionalDocuments.description'),
       fields: ['cvDocument', 'photoDocument', 'additionalDocuments'],
       content: <AdditionalDocumentsSection token={token} />,
     },
     {
-      title: 'Signature',
-      description:
-        'I certified that that all answer given herein are true and complete to the best of my knowledge',
+      title: t('steps.signature.title'),
+      description: t('steps.signature.description'),
       fields: ['applicantSignature', 'signatureLink', 'signatureDate'],
       content: <SignatureSection token={token} />,
     },
     {
-      title: 'Review & Ringkasan',
-      description: 'Periksa kembali seluruh data sebelum mengirim lamaran',
+      title: t('steps.review.title'),
+      description: t('steps.review.description'),
       fields: [],
       content: <SummarySection values={reviewValues} />,
     },
@@ -299,8 +298,8 @@ export function ApplicantForm({
     const firstInvalidStep = steps.findIndex(({ fields }) =>
       fields.some((name) => get(errors, name)),
     )
-    setSubmitError(INCOMPLETE_FORM_MESSAGE)
-    toast.error(INCOMPLETE_FORM_MESSAGE)
+    setSubmitError({ kind: 'incomplete' })
+    toast.error(t('form.incomplete'))
     if (firstInvalidStep === -1) return
     setStep(firstInvalidStep)
     scrollToTop()
@@ -311,14 +310,12 @@ export function ApplicantForm({
 
   if (submitted) {
     return (
-      <div className="mx-auto flex h-svh w-full max-w-md items-center p-4 sm:p-6">
+      <div className="relative mx-auto flex h-svh w-full max-w-md items-center p-4 sm:p-6">
+        <LanguageSwitcher className="absolute top-4 right-4" />
         <Card className="w-full">
           <CardHeader className="px-8 py-6">
-            <CardTitle>Lamaran Terkirim</CardTitle>
-            <CardDescription>
-              Terima kasih, lamaran Anda sudah kami terima. Tim kami akan menghubungi Anda
-              apabila diperlukan.
-            </CardDescription>
+            <CardTitle>{t('form.submittedTitle')}</CardTitle>
+            <CardDescription>{t('form.submittedDescription')}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -348,9 +345,15 @@ export function ApplicantForm({
 
             <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
               <div className="flex-1 overflow-y-auto px-6 py-8 sm:px-10 sm:py-10">
-                <span className="text-xs font-semibold text-primary">
-                  Step {String(step + 1).padStart(2, '0')} / {String(steps.length).padStart(2, '0')}
-                </span>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-xs font-semibold text-primary">
+                    {t('form.stepCounter', {
+                      current: String(step + 1).padStart(2, '0'),
+                      total: String(steps.length).padStart(2, '0'),
+                    })}
+                  </span>
+                  <LanguageSwitcher />
+                </div>
                 <CardTitle className="mt-3 mb-1.5 text-[32px] leading-[0.98] sm:text-[44px]">
                   {current.title}
                 </CardTitle>
@@ -364,7 +367,9 @@ export function ApplicantForm({
 
                 {submitError ? (
                   <p className="mt-6 border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                    {submitError}
+                    {submitError.kind === 'incomplete'
+                      ? t('form.incomplete')
+                      : (submitError.serverMessage ?? t('form.submitFailed'))}
                   </p>
                 ) : null}
               </div>
@@ -377,12 +382,14 @@ export function ApplicantForm({
                     onClick={handleBack}
                     disabled={isFirstStep}
                   >
-                    Kembali
+                    {t('form.back')}
                   </Button>
 
                   <div className="flex items-center gap-4">
                     <span className="hidden text-[11px] font-semibold text-muted-foreground/70 sm:inline">
-                      {lastSavedAt ? `Tersimpan ${format(lastSavedAt, 'HH:mm')}` : 'Draf belum tersimpan'}
+                      {lastSavedAt
+                        ? t('form.savedAt', { time: format(lastSavedAt, 'HH:mm') })
+                        : t('form.notSaved')}
                     </span>
 
                     {/* Distinct keys stop React from reusing the "Lanjut" <button> as the
@@ -396,11 +403,11 @@ export function ApplicantForm({
                         disabled={isSubmitting}
                       >
                         <Send className="size-4" />
-                        {isSubmitting ? 'Mengirim...' : 'Kirim Lamaran'}
+                        {isSubmitting ? t('form.submitting') : t('form.submit')}
                       </Button>
                     ) : (
                       <Button key="next" type="button" onClick={handleNext}>
-                        Lanjut
+                        {t('form.next')}
                       </Button>
                     )}
                   </div>

@@ -1,4 +1,5 @@
 import { useWatch } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { FieldGroup } from '@/components/ui/field'
 
@@ -7,35 +8,41 @@ import { SelectField, TextField } from '../components/form-fields'
 import { LAST_EDUCATION_OPTIONS } from '../form-utils'
 import type { ApplicantFormValues } from '../types'
 
+type LastEducation = (typeof LAST_EDUCATION_OPTIONS)[number]
+
 export function EducationalBackgroundSection() {
+  const { t } = useTranslation()
   const lastEducation = useWatch<ApplicantFormValues, 'lastEducation'>({ name: 'lastEducation' })
+  const educationLabel = (option: string) => t(`options.lastEducation.${option as LastEducation}`)
 
   return (
     <FieldGroup>
       <SelectField
         name="lastEducation"
-        label="LAST EDUCATION / Pendidikan terakhir"
+        label={t('fields.lastEducation')}
         options={LAST_EDUCATION_OPTIONS}
-        placeholder="Pilih pendidikan terakhir"
+        optionLabel={educationLabel}
+        placeholder={t('placeholders.lastEducation')}
         required
         className="sm:max-w-xs"
       />
 
       {lastEducation && (
-        <EntryCard index={1} label={`Pendidikan Terakhir — ${lastEducation}`} columns={5} required>
-          <TextField
-            name="education.schoolName"
-            label="Name of School/ Nama Institusi"
-            required
-          />
-          <TextField name="education.location" label="Location/ Lokasi" required />
-          <TextField name="education.graduate" label="Graduate/ Gelar Kelulusan" required />
-          <TextField name="education.major" label="Major / Jurusan" required />
+        <EntryCard
+          index={1}
+          label={t('education.cardTitle', { level: educationLabel(lastEducation) })}
+          columns={5}
+          required
+        >
+          <TextField name="education.schoolName" label={t('fields.schoolName')} required />
+          <TextField name="education.location" label={t('fields.location')} required />
+          <TextField name="education.graduate" label={t('fields.graduate')} required />
+          <TextField name="education.major" label={t('fields.major')} required />
           <TextField
             name="education.graduationYear"
-            label="Graduation Year/ Tahun Lulus"
+            label={t('fields.graduationYear')}
             inputMode="numeric"
-            placeholder="cth. 2020"
+            placeholder={t('placeholders.graduationYear')}
             maxLength={4}
             required
           />

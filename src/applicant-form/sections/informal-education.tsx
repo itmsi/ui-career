@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 
@@ -8,6 +9,7 @@ import { TextField } from '../components/form-fields'
 import { emptyInformalEducationRow, type ApplicantFormValues } from '../types'
 
 export function InformalEducationSection() {
+  const { t } = useTranslation()
   const { control } = useFormContext<ApplicantFormValues>()
   const { fields, append, remove } = useFieldArray({ control, name: 'informalEducation' })
 
@@ -17,33 +19,33 @@ export function InformalEducationSection() {
         <EntryCard
           key={field.id}
           index={index + 1}
-          label={`Pelatihan / Keterampilan ${index + 1}`}
+          label={t('informal.cardTitle', { number: index + 1 })}
           columns={5}
           onRemove={fields.length > 1 ? () => remove(index) : undefined}
         >
           <TextField
             name={`informalEducation.${index}.trainingName`}
-            label="Type of Training/ Name of Skill/ Jenis Pelatihan/ Nama Keterampilan"
+            label={t('fields.trainingName')}
             className="justify-between"
           />
           <TextField
             name={`informalEducation.${index}.institutionName`}
-            label="Institution's Name/ Nama Institusi Pelatihan"
+            label={t('fields.institutionName')}
             className="justify-between"
           />
           <TextField
             name={`informalEducation.${index}.location`}
-            label="Location/ Tempat"
+            label={t('fields.location')}
             className="justify-between"
           />
           <TextField
             name={`informalEducation.${index}.certification`}
-            label="Certification/ Sertifikasi"
+            label={t('fields.certification')}
             className="justify-between"
           />
           <TextField
             name={`informalEducation.${index}.period`}
-            label="Periode/ Waktu"
+            label={t('fields.period')}
             className="justify-between"
           />
         </EntryCard>
@@ -56,7 +58,7 @@ export function InformalEducationSection() {
         className="w-full border-dashed"
       >
         <Plus className="size-4" />
-        Tambah Pelatihan / Keterampilan
+        {t('informal.add')}
       </Button>
     </div>
   )

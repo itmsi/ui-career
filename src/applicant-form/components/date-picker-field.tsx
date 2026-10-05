@@ -3,14 +3,16 @@ import { format, isValid, parseISO } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import type { Matcher } from 'react-day-picker'
 import { useController, type FieldPath } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { Calendar } from '@/components/ui/calendar'
-import { Field, FieldError } from '@/components/ui/field'
+import { Field } from '@/components/ui/field'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { useLanguage } from '@/i18n/use-language'
 import { cn } from '@/lib/utils'
 
 import { inputHeightClass } from '../form-utils'
-import { FieldCaption } from './form-fields'
+import { FieldCaption, FormFieldError } from './form-fields'
 import type { ApplicantFormValues } from '../types'
 
 type CalendarBounds = {
@@ -25,7 +27,7 @@ export function DatePickerField({
   name,
   label,
   required,
-  placeholder = 'Pilih tanggal',
+  placeholder,
   className,
   id,
   ...bounds
@@ -37,6 +39,7 @@ export function DatePickerField({
   className?: string
   id?: string
 } & CalendarBounds) {
+  const { t } = useTranslation()
   const { field, fieldState } = useController<ApplicantFormValues>({ name })
   const buttonId = id ?? name
 
@@ -50,7 +53,7 @@ export function DatePickerField({
       <DatePickerButton
         id={buttonId}
         buttonRef={field.ref}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('common.datePlaceholder')}
         invalid={!!fieldState.error}
         value={typeof field.value === 'string' ? field.value : ''}
         onChange={(value) => {
@@ -59,7 +62,7 @@ export function DatePickerField({
         }}
         {...bounds}
       />
-      <FieldError errors={[fieldState.error]} />
+      <FormFieldError error={fieldState.error} />
     </Field>
   )
 }
@@ -83,6 +86,7 @@ function DatePickerButton({
   onChange: (value: string) => void
 } & CalendarBounds) {
   const [open, setOpen] = useState(false)
+  const { calendarLocale } = useLanguage()
 
   const parsedValue = value ? parseISO(value) : undefined
   const selectedDate = parsedValue && isValid(parsedValue) ? parsedValue : undefined
@@ -111,6 +115,7 @@ function DatePickerButton({
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
+          locale={calendarLocale}
           captionLayout="dropdown"
           selected={selectedDate}
           defaultMonth={selectedDate}
