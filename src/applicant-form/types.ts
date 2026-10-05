@@ -1,106 +1,16 @@
 import { format } from 'date-fns'
-import type { UseFormRegister } from 'react-hook-form'
+import type { z } from 'zod'
 
-export type EducationRow = {
-  schoolName: string
-  location: string
-  graduate: string
-  major: string
-  graduationYear: string
-}
+import type { applicantFormSchema } from './schema'
 
-export type InformalEducationRow = {
-  trainingName: string
-  institutionName: string
-  location: string
-  certification: string
-  period: string
-}
-
-export type FamilyRow = {
-  name: string
-  age: string
-  employment: string
-  emergencyContact: string
-}
-
-export type WorkExperienceRow = {
-  companyName: string
-  dateFrom: string
-  dateFinal: string
-  salary: string
-  supervisorName: string
-  reasonForLeaving: string
-}
-
-export type ReferenceRow = {
-  name: string
-  position: string
-  phone: string
-}
-
-export type YesNo = '' | 'yes' | 'no'
-
-export type AdditionalDocumentItem = {
-  file_title: string
-  file_type: string
-  file: string
-}
-
-export type ApplicantFormValues = {
-  fullName: string
-  addressIdCard: string
-  nickname: string
-  presentAddress: string
-  mobile: string
-  city: string
-  emergencyContactInfo: string
-  birthPlace: string
-  birthDate: string
-  email: string
-  bloodType: string
-  idNumber: string
-  taxId: string
-  positionApplied: string
-  workingAvailableDate: string
-  maritalStatus: string
-  religion: string
-  heightWeight: string
-  tshirtSize: string
-  driverLicense: {
-    simA: boolean
-    simB: boolean
-    simC: boolean
-    sio: boolean
-  }
-  education: {
-    university: EducationRow
-    highSchool: EducationRow
-    juniorSchool: EducationRow
-    elementarySchool: EducationRow
-  }
-  informalEducation: InformalEducationRow[]
-  family: {
-    father: FamilyRow
-    mother: FamilyRow
-    spouse: FamilyRow
-    child1: FamilyRow
-    child2: FamilyRow
-    child3: FamilyRow
-    child4: FamilyRow
-  }
-  workExperience: WorkExperienceRow[]
-  references: ReferenceRow[]
-  hasCriminalRecord: YesNo
-  hasUsedDrugs: YesNo
-  willingToRelocate: YesNo
-  additionalDocuments: AdditionalDocumentItem[]
-  applicantSignature: string
-  signatureLink: string
-  signatureDate: string
-}
-
-export type RegisterFn = UseFormRegister<ApplicantFormValues>
+export type ApplicantFormValues = z.infer<typeof applicantFormSchema>
+export type EducationRow = ApplicantFormValues['education']
+export type InformalEducationRow = ApplicantFormValues['informalEducation'][number]
+export type FamilyRow = ApplicantFormValues['family']['spouse']
+export type WorkExperienceRow = ApplicantFormValues['workExperience'][number]
+export type ReferenceRow = ApplicantFormValues['references'][number]
+export type AdditionalDocumentItem = ApplicantFormValues['additionalDocuments'][number]
+export type YesNo = ApplicantFormValues['hasCriminalRecord']
 
 const emptyEducationRow: EducationRow = {
   schoolName: '',
@@ -160,13 +70,9 @@ export const defaultValues: ApplicantFormValues = {
   religion: '',
   heightWeight: '',
   tshirtSize: '',
-  driverLicense: { simA: false, simB: false, simC: false, sio: false },
-  education: {
-    university: { ...emptyEducationRow },
-    highSchool: { ...emptyEducationRow },
-    juniorSchool: { ...emptyEducationRow },
-    elementarySchool: { ...emptyEducationRow },
-  },
+  driverLicense: '',
+  lastEducation: '',
+  education: { ...emptyEducationRow },
   informalEducation: Array.from({ length: 2 }, () => ({ ...emptyInformalEducationRow })),
   family: {
     father: { ...emptyFamilyRow },

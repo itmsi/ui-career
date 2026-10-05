@@ -1,6 +1,6 @@
 import { apiRequest } from '@/lib/api-client'
 
-import { EDUCATION_ROWS, FAMILY_ROWS, SCREENING_QUESTIONS, yesNoLabel } from './form-utils'
+import { FAMILY_ROWS, SCREENING_QUESTIONS, yesNoLabel } from './form-utils'
 import type { AdditionalDocumentItem, ApplicantFormValues } from './types'
 
 export type InvitationVerifyResponse = {
@@ -125,12 +125,12 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
     position_applied_for: values.positionApplied,
     marital_status: values.maritalStatus,
     height_weight: values.heightWeight,
-    driver_license: [
-      values.driverLicense.simA && { name: 'SIM A' },
-      values.driverLicense.simB && { name: 'SIM B' },
-      values.driverLicense.simC && { name: 'SIM C' },
-      values.driverLicense.sio && { name: 'SIO' },
-    ].filter((item): item is { name: string } => Boolean(item)),
+    // Typed as free text ("SIM A, SIM C"); each comma-separated entry is one licence.
+    driver_license: values.driverLicense
+      .split(',')
+      .map((name) => name.trim())
+      .filter(Boolean)
+      .map((name) => ({ name })),
     address_as_per_id_card: values.addressIdCard,
     present_address: values.presentAddress,
     city: values.city,
@@ -140,17 +140,17 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
     working_available_date: values.workingAvailableDate,
     relogion: values.religion,
     tshirt_size: values.tshirtSize,
-    educational_background: EDUCATION_ROWS.map((row) => {
-      const v = values.education[row.key]
-      return {
-        type_of_school: row.typeOfSchool,
-        name_of_school: v.schoolName,
-        location: v.location,
-        graduate: v.graduate,
-        major: v.major,
-        graduation_year: v.graduationYear,
-      }
-    }),
+    // Only the last education is collected; its level (s3 … sd) is the school type.
+    educational_background: [
+      {
+        type_of_school: values.lastEducation.toLowerCase(),
+        name_of_school: values.education.schoolName,
+        location: values.education.location,
+        graduate: values.education.graduate,
+        major: values.education.major,
+        graduation_year: values.education.graduationYear,
+      },
+    ],
     informal_education_special_qualification: values.informalEducation.map((row) => ({
       type_of_training: row.trainingName,
       institution_name: row.institutionName,

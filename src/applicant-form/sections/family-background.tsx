@@ -1,42 +1,32 @@
-import { Field, FieldLabel } from '@/components/ui/field'
-
 import { EntryCard } from '../components/entry-card'
-import { EntryInput } from '../components/entry-input'
-import { FAMILY_ROWS, captionLabelClass } from '../form-utils'
-import type { RegisterFn } from '../types'
+import { TextField } from '../components/form-fields'
+import { FAMILY_ROWS } from '../form-utils'
 
-export function FamilyBackgroundSection({
-  register,
-}: {
-  register: RegisterFn
-}) {
+export function FamilyBackgroundSection() {
   return (
     <div className="space-y-3">
       {FAMILY_ROWS.map((row, i) => (
-        <EntryCard key={row.key} index={i + 1} label={row.label} columns={4}>
-          <Field>
-            <FieldLabel className={captionLabelClass}>Name/ Nama</FieldLabel>
-            <EntryInput name={`family.${row.key}.name`} register={register} />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>Age/ Usia</FieldLabel>
-            <EntryInput name={`family.${row.key}.age`} register={register} />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Employment/ Pekerjaan
-            </FieldLabel>
-            <EntryInput name={`family.${row.key}.employment`} register={register} />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Emergency Contact Number/ Kontak Darurat
-            </FieldLabel>
-            <EntryInput
-              name={`family.${row.key}.emergencyContact`}
-              register={register}
-            />
-          </Field>
+        <EntryCard
+          key={row.key}
+          index={i + 1}
+          label={row.label}
+          columns={4}
+          required={row.required}
+        >
+          <TextField name={`family.${row.key}.name`} label="Name/ Nama" required={row.required} />
+          <TextField
+            name={`family.${row.key}.age`}
+            label="Age/ Usia"
+            inputMode="numeric"
+            maxLength={3}
+          />
+          <TextField name={`family.${row.key}.employment`} label="Employment/ Pekerjaan" />
+          <TextField
+            name={`family.${row.key}.emergencyContact`}
+            label="Emergency Contact Number/ Kontak Darurat"
+            type="tel"
+            inputMode="tel"
+          />
         </EntryCard>
       ))}
     </div>

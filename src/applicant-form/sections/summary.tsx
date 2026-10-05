@@ -5,7 +5,6 @@ import { ReviewItem } from '../components/review-item'
 import { ReviewSection } from '../components/review-section'
 import {
   captionLabelClass,
-  EDUCATION_ROWS,
   FAMILY_ROWS,
   formatDateDisplay,
   yesNoLabel,
@@ -25,15 +24,6 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
     .map((row, index) => ({ row, index }))
     .filter(({ row }) => Object.values(row).some((v) => v && v.trim()))
 
-  const driverLicenseSummary = [
-    values.driverLicense?.simA && 'SIM A',
-    values.driverLicense?.simB && 'SIM B',
-    values.driverLicense?.simC && 'SIM C',
-    values.driverLicense?.sio && 'SIO',
-  ]
-    .filter(Boolean)
-    .join(', ')
-
   return (
     <div className="space-y-6">
       <ReviewSection icon={UserRound} title="Applicant Information / Informasi Pelamar">
@@ -42,7 +32,6 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
           <ReviewItem label="Nickname" value={values.nickname} />
           <ReviewItem label="Email" value={values.email} />
           <ReviewItem label="Mobile" value={values.mobile} />
-          <ReviewItem label="City" value={values.city} />
           <ReviewItem
             label="Place, Date of Birth"
             value={[values.birthPlace, formatDateDisplay(values.birthDate)]
@@ -61,7 +50,8 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
           <ReviewItem label="Religion" value={values.religion} />
           <ReviewItem label="Height & Weight" value={values.heightWeight} />
           <ReviewItem label="T-Shirt Size" value={values.tshirtSize} />
-          <ReviewItem label="Driver's License" value={driverLicenseSummary} />
+          <ReviewItem label="City" value={values.city} />
+          <ReviewItem label="Driver's License" value={values.driverLicense} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <ReviewItem label="Address as per ID Card" value={values.addressIdCard} />
@@ -75,22 +65,19 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
 
       <ReviewSection
         icon={GraduationCap}
-        title="Educational Background / Latar Belakang Pendidikan"
+        title="Educational History / Latar Belakang Pendidikan"
       >
-        <div className="space-y-3">
-          {EDUCATION_ROWS.map((row, i) => {
-            const v = values.education[row.key]
-            return (
-              <EntryCard key={row.key} index={i + 1} label={row.label} columns={5}>
-                <ReviewItem label="Name of School" value={v.schoolName} />
-                <ReviewItem label="Location" value={v.location} />
-                <ReviewItem label="Graduate" value={v.graduate} />
-                <ReviewItem label="Major" value={v.major} />
-                <ReviewItem label="Graduation Year" value={v.graduationYear} />
-              </EntryCard>
-            )
-          })}
-        </div>
+        <EntryCard
+          index={1}
+          label={`Last Education / Pendidikan Terakhir${values.lastEducation ? ` — ${values.lastEducation}` : ''}`}
+          columns={5}
+        >
+          <ReviewItem label="Name of School" value={values.education.schoolName} />
+          <ReviewItem label="Location" value={values.education.location} />
+          <ReviewItem label="Graduate" value={values.education.graduate} />
+          <ReviewItem label="Major" value={values.education.major} />
+          <ReviewItem label="Graduation Year" value={values.education.graduationYear} />
+        </EntryCard>
       </ReviewSection>
 
       <ReviewSection
@@ -146,7 +133,7 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
       <ReviewSection icon={Briefcase} title="Working Experiences / Pengalaman Kerja">
         {filledWorkExperience.length === 0 ? (
           <p className="text-sm text-muted-foreground italic">
-            Belum ada data pengalaman kerja.
+            Belum ada data pengalaman kerja / magang.
           </p>
         ) : (
           <div className="space-y-3">
@@ -154,7 +141,7 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
               <EntryCard
                 key={index}
                 index={index + 1}
-                label={`Pengalaman Kerja ${index + 1}`}
+                label={`Pengalaman Kerja / Magang ${index + 1}`}
                 columns={3}
               >
                 <ReviewItem label="Name of Company" value={row.companyName} />

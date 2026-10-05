@@ -1,50 +1,46 @@
-import { Field, FieldLabel } from '@/components/ui/field'
+import { useWatch } from 'react-hook-form'
+
+import { FieldGroup } from '@/components/ui/field'
 
 import { EntryCard } from '../components/entry-card'
-import { EntryInput } from '../components/entry-input'
-import { EDUCATION_ROWS, captionLabelClass } from '../form-utils'
-import type { RegisterFn } from '../types'
+import { SelectField, TextField } from '../components/form-fields'
+import { LAST_EDUCATION_OPTIONS } from '../form-utils'
+import type { ApplicantFormValues } from '../types'
 
-export function EducationalBackgroundSection({
-  register,
-}: {
-  register: RegisterFn
-}) {
+export function EducationalBackgroundSection() {
+  const lastEducation = useWatch<ApplicantFormValues, 'lastEducation'>({ name: 'lastEducation' })
+
   return (
-    <div className="space-y-3">
-      {EDUCATION_ROWS.map((row, i) => (
-        <EntryCard key={row.key} index={i + 1} label={row.label} columns={5}>
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Name of School/ Nama Institusi
-            </FieldLabel>
-            <EntryInput name={`education.${row.key}.schoolName`} register={register} />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>Location/ Lokasi</FieldLabel>
-            <EntryInput name={`education.${row.key}.location`} register={register} />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Graduate/ Gelar Kelulusan
-            </FieldLabel>
-            <EntryInput name={`education.${row.key}.graduate`} register={register} />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>Major / Jurusan</FieldLabel>
-            <EntryInput name={`education.${row.key}.major`} register={register} />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Graduation Year/ Tahun Lulus
-            </FieldLabel>
-            <EntryInput
-              name={`education.${row.key}.graduationYear`}
-              register={register}
-            />
-          </Field>
+    <FieldGroup>
+      <SelectField
+        name="lastEducation"
+        label="LAST EDUCATION / Pendidikan terakhir"
+        options={LAST_EDUCATION_OPTIONS}
+        placeholder="Pilih pendidikan terakhir"
+        required
+        className="sm:max-w-xs"
+      />
+
+      {lastEducation && (
+        <EntryCard index={1} label={`Pendidikan Terakhir — ${lastEducation}`} columns={5} required>
+          <TextField
+            name="education.schoolName"
+            label="Name of School/ Nama Institusi"
+            required
+          />
+          <TextField name="education.location" label="Location/ Lokasi" required />
+          <TextField name="education.graduate" label="Graduate/ Gelar Kelulusan" required />
+          <TextField name="education.major" label="Major / Jurusan" required />
+          <TextField
+            name="education.graduationYear"
+            label="Graduation Year/ Tahun Lulus"
+            inputMode="numeric"
+            placeholder="cth. 2020"
+            maxLength={4}
+            required
+          />
         </EntryCard>
-      ))}
-    </div>
+      )}
+    </FieldGroup>
   )
 }

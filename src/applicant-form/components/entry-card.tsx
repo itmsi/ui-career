@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Trash2 } from 'lucide-react'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -8,12 +9,15 @@ export function EntryCard({
   index,
   label,
   columns = 3,
+  required,
   onRemove,
   children,
 }: {
   index: number
   label: string
   columns?: 3 | 4 | 5
+  /** Shows a "Wajib" badge for rows the applicant must fill in. */
+  required?: boolean
   onRemove?: () => void
   children: ReactNode
 }) {
@@ -32,6 +36,11 @@ export function EntryCard({
             {String(index).padStart(2, '0')}
           </span>
           <p className="font-heading text-sm font-semibold">{label}</p>
+          {required && (
+            <Badge variant="destructive" className="self-center">
+              Wajib
+            </Badge>
+          )}
         </div>
         {onRemove && (
           <Button
