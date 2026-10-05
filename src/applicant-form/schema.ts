@@ -184,6 +184,7 @@ export const applicantFormSchema = z.object({
   hasUsedDrugs: yesNo,
   willingToRelocate: yesNo,
 
+  cvDocument: additionalDocumentSchema.refine((doc) => !!doc.file, 'CV wajib diunggah'),
   additionalDocuments: z.array(additionalDocumentSchema),
   applicantSignature: z.string(),
   signatureLink: z.string(),

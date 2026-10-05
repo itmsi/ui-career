@@ -1,16 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { FileImage, FileText, Loader2, Trash2, UploadCloud, X } from 'lucide-react'
-import { useFieldArray, useFormContext } from 'react-hook-form'
+import { useController, useFieldArray, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Field, FieldLabel } from '@/components/ui/field'
+import { Field, FieldError, FieldLabel, FieldSeparator } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { ApiError } from '@/lib/api-client'
 import { cn } from '@/lib/utils'
 
 import { uploadApplicantFormFile } from '../api'
+import { FieldCaption } from '../components/form-fields'
 import { captionLabelClass, inputHeightClass } from '../form-utils'
 import type { ApplicantFormValues } from '../types'
 
@@ -24,6 +25,161 @@ function formatFileSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+const CV_FILE_TITLE = 'CV'
+
+/** Dedicated, required CV slot: PDF only, uploaded as soon as it is picked. */
+function CvUploadField({ token }: { token: string }) {
+  const {
+    field: { ref, ...field },
+    fieldState,
+  } = useController<ApplicantFormValues, 'cvDocument'>({ name: 'cvDocument' })
+  const [uploading, setUploading] = useState(false)
+  const [dragActive, setDragActive] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const cv = field.value
+
+  function openPicker() {
+    if (!uploading) inputRef.current?.click()
+  }
+
+  async function upload(file: File) {
+    if (file.type !== 'application/pdf') {
+      toast.error('CV harus berformat PDF.')
+      return
+    }
+    if (file.size > MAX_ADDITIONAL_DOCUMENT_SIZE_BYTES) {
+      toast.error('Ukuran CV maksimal 2MB.')
+      return
+    }
+
+    const toastId = toast.loading('Mengunggah CV...')
+    setUploading(true)
+    try {
+      const result = await uploadApplicantFormFile(token, file, CV_FILE_TITLE)
+      field.onChange(result)
+      field.onBlur()
+      toast.success('CV berhasil diunggah.', { id: toastId })
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : 'Gagal mengunggah CV.', { id: toastId })
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  function handleRemove() {
+    field.onChange({ file_title: '', file_type: '', file: '' })
+    field.onBlur()
+    toast.success('CV dihapus.')
+  }
+
+  return (
+    <Field data-invalid={!!fieldState.error}>
+      <FieldCaption htmlFor="cvDocument" required>
+        CV / Curriculum Vitae
+      </FieldCaption>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".pdf,application/pdf"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0]
+          event.target.value = ''
+          if (file) void upload(file)
+        }}
+      />
+
+      {cv.file ? (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-input bg-white/70 p-3 dark:bg-input/30">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <FileText className="size-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">{cv.file_title}</p>
+              <a
+                href={cv.file}
+                target="_blank"
+                rel="noreferrer"
+                className="truncate text-xs text-muted-foreground hover:text-primary hover:underline"
+              >
+                Lihat CV
+              </a>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <Button type="button" variant="outline" size="sm" onClick={openPicker} disabled={uploading}>
+              {uploading ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <UploadCloud className="size-4" />
+              )}
+              {uploading ? 'Mengunggah...' : 'Ganti'}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              onClick={handleRemove}
+              disabled={uploading}
+              aria-label="Hapus CV"
+              className="text-muted-foreground hover:text-destructive"
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div
+          id="cvDocument"
+          ref={ref}
+          role="button"
+          tabIndex={0}
+          aria-invalid={!!fieldState.error}
+          onClick={openPicker}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault()
+              openPicker()
+            }
+          }}
+          onDragOver={(event) => {
+            event.preventDefault()
+            setDragActive(true)
+          }}
+          onDragLeave={() => setDragActive(false)}
+          onDrop={(event) => {
+            event.preventDefault()
+            setDragActive(false)
+            const file = event.dataTransfer.files?.[0]
+            if (file && !uploading) void upload(file)
+          }}
+          className={cn(
+            'group flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-input bg-muted/30 p-6 text-center transition-colors outline-none hover:border-primary/50 hover:bg-primary/5 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
+            dragActive && 'border-primary bg-primary/5',
+            fieldState.error && 'border-destructive',
+          )}
+        >
+          <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary transition-transform group-hover:scale-105">
+            {uploading ? (
+              <Loader2 className="size-5 animate-spin" />
+            ) : (
+              <FileText className="size-5" />
+            )}
+          </span>
+          <span className="text-sm font-medium text-foreground">
+            {uploading ? 'Mengunggah CV...' : 'Klik atau seret CV ke sini'}
+          </span>
+          <span className="text-xs text-muted-foreground">PDF · maks. 2MB</span>
+        </div>
+      )}
+
+      <FieldError errors={[fieldState.error]} />
+    </Field>
+  )
 }
 
 export function AdditionalDocumentsSection({ token }: { token: string }) {
@@ -128,6 +284,10 @@ export function AdditionalDocumentsSection({ token }: { token: string }) {
 
   return (
     <div className="space-y-5">
+      <CvUploadField token={token} />
+
+      <FieldSeparator>Dokumen tambahan</FieldSeparator>
+
       <div className="flex items-center justify-end">
         <Badge
           variant="outline"

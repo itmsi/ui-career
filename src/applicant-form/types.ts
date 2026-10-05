@@ -88,6 +88,7 @@ export const defaultValues: ApplicantFormValues = {
   hasCriminalRecord: '',
   hasUsedDrugs: '',
   willingToRelocate: '',
+  cvDocument: { file_title: '', file_type: '', file: '' },
   additionalDocuments: [],
   applicantSignature: '',
   signatureLink: '',
