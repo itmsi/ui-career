@@ -18,7 +18,7 @@ import { usePendingUpload } from '../pending-uploads'
 import { captionLabelClass, inputHeightClass } from '../form-utils'
 import type { ApplicantFormValues } from '../types'
 
-export const MAX_ADDITIONAL_DOCUMENTS = 10
+export const MAX_ADDITIONAL_DOCUMENTS = 5
 export const MAX_ADDITIONAL_DOCUMENT_SIZE_BYTES = 2 * 1024 * 1024 // 2MB
 
 const ACCEPTED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'application/pdf']
