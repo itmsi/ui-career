@@ -1,10 +1,11 @@
 import { useController, type FieldPath } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
-import { FieldError } from '@/components/ui/field'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { cn } from '@/lib/utils'
 
 import type { ApplicantFormValues } from '../types'
+import { FormFieldError } from './form-fields'
 
 export function YesNoQuestion({
   question,
@@ -15,6 +16,7 @@ export function YesNoQuestion({
   name: FieldPath<ApplicantFormValues>
   required?: boolean
 }) {
+  const { t } = useTranslation()
   const {
     field: { ref, ...field },
     fieldState,
@@ -49,15 +51,15 @@ export function YesNoQuestion({
         >
           <label className="flex cursor-pointer items-center gap-2 px-4 py-2 text-sm font-semibold transition-colors has-data-checked:bg-primary has-data-checked:text-primary-foreground">
             <RadioGroupItem value="yes" className="sr-only" />
-            Ya
+            {t('common.yes')}
           </label>
           <label className="flex cursor-pointer items-center gap-2 border-l border-border px-4 py-2 text-sm font-semibold transition-colors has-data-checked:bg-primary has-data-checked:text-primary-foreground">
             <RadioGroupItem value="no" className="sr-only" />
-            Tidak
+            {t('common.no')}
           </label>
         </RadioGroup>
       </div>
-      <FieldError errors={[fieldState.error]} />
+      <FormFieldError error={fieldState.error} />
     </div>
   )
 }

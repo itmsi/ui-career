@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react'
-import { useController, type FieldPath } from 'react-hook-form'
+import { useController, type FieldError as RhfFieldError, type FieldPath } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
@@ -11,12 +12,23 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import type { TranslationKey } from '@/i18n/use-language'
 import { cn } from '@/lib/utils'
 
 import { captionLabelClass, inputHeightClass } from '../form-utils'
 import type { ApplicantFormValues } from '../types'
 
 type FieldName = FieldPath<ApplicantFormValues>
+
+/**
+ * Shows a field's validation error. Schema messages are translation keys, so they are
+ * translated here and follow the active language.
+ */
+export function FormFieldError({ error }: { error?: Pick<RhfFieldError, 'message'> }) {
+  const { t } = useTranslation()
+  const message = error?.message ? t(error.message as TranslationKey) : undefined
+  return <FieldError errors={[message ? { message } : undefined]} />
+}
 
 export function FieldCaption({
   htmlFor,
@@ -89,7 +101,7 @@ export function TextField({
       ) : (
         <Input type={type} inputMode={inputMode} className={inputHeightClass} {...controlProps} />
       )}
-      <FieldError errors={[fieldState.error]} />
+      <FormFieldError error={fieldState.error} />
     </Field>
   )
 }
@@ -98,17 +110,23 @@ export function SelectField({
   name,
   label,
   options,
+  optionLabel = (option) => option,
   required,
-  placeholder = 'Pilih',
+  placeholder,
   className,
 }: {
   name: FieldName
   label: ReactNode
+  /** Values stored in the form and sent to the backend. */
   options: readonly string[]
+  /** Text shown for each value; defaults to the value itself. */
+  optionLabel?: (option: string) => string
   required?: boolean
   placeholder?: string
   className?: string
 }) {
+  const { t } = useTranslation()
+  const items = options.map((option) => ({ value: option, label: optionLabel(option) }))
   const {
     field: { ref, ...field },
     fieldState,
@@ -121,6 +139,7 @@ export function SelectField({
         {label}
       </FieldCaption>
       <Select
+        items={items}
         value={value}
         onValueChange={(next) => {
           field.onChange(next ?? '')
@@ -134,17 +153,17 @@ export function SelectField({
           aria-required={required}
           className={cn(inputHeightClass, 'w-full bg-white/70 data-[size=default]:h-10')}
         >
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder ?? t('common.selectPlaceholder')} />
         </SelectTrigger>
         <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option} value={option}>
-              {option}
+          {items.map((item) => (
+            <SelectItem key={item.value} value={item.value}>
+              {item.label}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      <FieldError errors={[fieldState.error]} />
+      <FormFieldError error={fieldState.error} />
     </Field>
   )
 }

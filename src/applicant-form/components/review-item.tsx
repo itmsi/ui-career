@@ -1,6 +1,9 @@
+import { useTranslation } from 'react-i18next'
+
 import { captionLabelClass } from '../form-utils'
 
 export function ReviewItem({ label, value }: { label: string; value?: string }) {
+  const { t } = useTranslation()
   return (
     <div>
       <p className={captionLabelClass}>{label}</p>
@@ -9,7 +12,7 @@ export function ReviewItem({ label, value }: { label: string; value?: string }) 
           value
         ) : (
           <span className="font-normal text-muted-foreground italic">
-            Belum diisi
+            {t('common.notFilled')}
           </span>
         )}
       </p>

@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
 
@@ -9,6 +10,7 @@ import { REFERENCES_MIN } from '../form-utils'
 import { emptyReferenceRow, type ApplicantFormValues } from '../types'
 
 export function ReferencesSection() {
+  const { t } = useTranslation()
   const { control } = useFormContext<ApplicantFormValues>()
   const { fields, append, remove } = useFieldArray({ control, name: 'references' })
 
@@ -21,26 +23,26 @@ export function ReferencesSection() {
             <EntryCard
               key={field.id}
               index={index + 1}
-              label={`Referensi ${index + 1}`}
+              label={t('references.cardTitle', { number: index + 1 })}
               columns={3}
               required={required}
               onRemove={required ? undefined : () => remove(index)}
             >
               <TextField
                 name={`references.${index}.name`}
-                label="Name/ Nama"
+                label={t('fields.name')}
                 required={required}
                 className="justify-between"
               />
               <TextField
                 name={`references.${index}.position`}
-                label="Position Company/ Jabatan"
+                label={t('fields.position')}
                 required={required}
                 className="justify-between"
               />
               <TextField
                 name={`references.${index}.phone`}
-                label="Phone / Telepon"
+                label={t('fields.phone')}
                 type="tel"
                 inputMode="tel"
                 required={required}
@@ -58,7 +60,7 @@ export function ReferencesSection() {
         className="w-full border-dashed"
       >
         <Plus className="size-4" />
-        Tambah Referensi
+        {t('references.add')}
       </Button>
     </div>
   )

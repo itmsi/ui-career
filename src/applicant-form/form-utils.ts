@@ -20,19 +20,20 @@ export const LAST_EDUCATION_OPTIONS = ['S3', 'S2', 'S1', 'D3', 'D1', 'SMA', 'SMP
 
 export const FAMILY_ROWS: Array<{
   key: keyof ApplicantFormValues['family']
-  label: string
+  /** Sent to the backend as-is; the on-screen label comes from `family.<key>`. */
   relationship: string
   required?: boolean
 }> = [
-  { key: 'father', label: 'Nama Ayah', relationship: 'ayah', required: true },
-  { key: 'mother', label: 'Nama Ibu', relationship: 'ibu', required: true },
-  { key: 'spouse', label: 'Nama Suami/ Istri', relationship: 'suami/istri' },
-  { key: 'child1', label: 'Nama Anak ke-1 / Saudara ke-1', relationship: 'anak ke-1' },
-  { key: 'child2', label: 'Nama Anak ke-2 / Saudara ke-2', relationship: 'anak ke-2' },
-  { key: 'child3', label: 'Nama Anak ke-3 / Saudara ke-3', relationship: 'anak ke-3' },
-  { key: 'child4', label: 'Nama Anak ke-4 / Saudara ke-4', relationship: 'anak ke-4' },
+  { key: 'father', relationship: 'ayah', required: true },
+  { key: 'mother', relationship: 'ibu', required: true },
+  { key: 'spouse', relationship: 'suami/istri' },
+  { key: 'child1', relationship: 'anak ke-1' },
+  { key: 'child2', relationship: 'anak ke-2' },
+  { key: 'child3', relationship: 'anak ke-3' },
+  { key: 'child4', relationship: 'anak ke-4' },
 ]
 
+/** The Indonesian question text is what the backend stores; the UI shows `screening.<name>`. */
 export const SCREENING_QUESTIONS: Array<{
   name: 'hasCriminalRecord' | 'hasUsedDrugs' | 'willingToRelocate'
   question: string
@@ -103,6 +104,7 @@ export function loadDraftStep(): number {
   }
 }
 
+/** Answer text sent to the backend; always Indonesian, whatever language the UI shows. */
 export function yesNoLabel(value: YesNo) {
   if (value === 'yes') return 'Ya'
   if (value === 'no') return 'Tidak'

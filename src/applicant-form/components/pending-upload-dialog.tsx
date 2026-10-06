@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   Dialog,
@@ -20,15 +22,13 @@ export function PendingUploadDialog({
   onStay: () => void
   onDiscard: () => void
 }) {
+  const { t } = useTranslation()
   return (
     <Dialog open={labels.length > 0} onOpenChange={(open) => !open && onStay()}>
       <DialogContent showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>File belum diunggah</DialogTitle>
-          <DialogDescription>
-            File berikut sudah dipilih tetapi belum diunggah. Jika Anda lanjut, upload file
-            ini akan dibatalkan.
-          </DialogDescription>
+          <DialogTitle>{t('pendingUpload.title')}</DialogTitle>
+          <DialogDescription>{t('pendingUpload.description')}</DialogDescription>
         </DialogHeader>
 
         <ul className="ml-4 list-disc space-y-1 text-sm font-medium text-foreground">
@@ -44,10 +44,10 @@ export function PendingUploadDialog({
             type="button"
             className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
           >
-            Kembali &amp; Upload
+            {t('pendingUpload.stay')}
           </DialogClose>
           <Button type="button" variant="destructive" size="sm" onClick={onDiscard}>
-            Batalkan Upload
+            {t('pendingUpload.discard')}
           </Button>
         </DialogFooter>
       </DialogContent>
