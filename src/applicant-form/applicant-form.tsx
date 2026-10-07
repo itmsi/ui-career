@@ -17,6 +17,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { cn } from '@/lib/utils'
 import { ApiError } from '@/lib/api-client'
+import { VIDEO_INTERVIEW_ENABLED } from '@/video-interview/config'
 
 import { submitApplicantForm, type InvitationVerifyResponse } from './api'
 import { FormNav } from './components/form-nav'
@@ -79,7 +80,7 @@ export function ApplicantForm({
   const { t } = useTranslation()
   const [submitError, setSubmitError] = useState<SubmitError | null>(null)
   const [submitted, setSubmitted] = useState(false)
-  const [step, setStep] = useState(loadDraftStep)
+  const [storedStep, setStep] = useState(loadDraftStep)
   const [navMode, setNavMode] = useState<'rail' | 'bar'>('rail')
   const [navCollapsed, setNavCollapsed] = useState(false)
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
@@ -119,11 +120,11 @@ export function ApplicantForm({
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(STEP_STORAGE_KEY, String(step))
+      window.localStorage.setItem(STEP_STORAGE_KEY, String(storedStep))
     } catch {
       // ignore write failures (private browsing / storage full)
     }
-  }, [step])
+  }, [storedStep])
 
   const onSubmit = async (data: ApplicantFormValues) => {
     setSubmitError(null)
@@ -153,6 +154,25 @@ export function ApplicantForm({
   const reviewValues = watch()
   const interviewComplete =
     interviewTotal !== null && (reviewValues.applicantFormContents?.length ?? 0) >= interviewTotal
+
+  const interviewSteps: FormStep[] = VIDEO_INTERVIEW_ENABLED
+    ? [
+        {
+          title: t('steps.videoInterview.title'),
+          description: t('steps.videoInterview.description'),
+          fields: ['applicantFormContents'],
+          blocked: !interviewComplete,
+          locksPrevious: true,
+          content: (
+            <VideoInterviewSection
+              token={token}
+              fullName={reviewValues.fullName || invitation.full_name}
+              onQuestionCount={setInterviewTotal}
+            />
+          ),
+        },
+      ]
+    : []
 
   const steps: FormStep[] = [
     {
@@ -230,20 +250,7 @@ export function ApplicantForm({
       fields: ['applicantSignature', 'signatureLink', 'signatureDate'],
       content: <SignatureSection token={token} />,
     },
-    {
-      title: t('steps.videoInterview.title'),
-      description: t('steps.videoInterview.description'),
-      fields: ['applicantFormContents'],
-      blocked: !interviewComplete,
-      locksPrevious: true,
-      content: (
-        <VideoInterviewSection
-          token={token}
-          fullName={reviewValues.fullName || invitation.full_name}
-          onQuestionCount={setInterviewTotal}
-        />
-      ),
-    },
+    ...interviewSteps,
     {
       title: t('steps.review.title'),
       description: t('steps.review.description'),
@@ -252,6 +259,7 @@ export function ApplicantForm({
     },
   ]
 
+  const step = Math.min(storedStep, steps.length - 1)
   const isFirstStep = step === 0
   const isLastStep = step === steps.length - 1
   const current = steps[step]

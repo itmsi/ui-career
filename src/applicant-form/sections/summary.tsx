@@ -13,6 +13,8 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { VIDEO_INTERVIEW_ENABLED } from '@/video-interview/config'
+
 import { EntryCard } from '../components/entry-card'
 import { ReviewItem } from '../components/review-item'
 import { ReviewSection } from '../components/review-section'
@@ -247,35 +249,37 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
         )}
       </ReviewSection>
 
-      <ReviewSection icon={Video} title={t('steps.videoInterview.title')}>
-        {values.applicantFormContents.length === 0 ? (
-          <p className="text-sm text-muted-foreground italic">{t('common.notFilled')}</p>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              {t('summary.interviewCount', { total: values.applicantFormContents.length })}
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {values.applicantFormContents.map((content) => (
-                <a
-                  key={content.id_question}
-                  href={content.file_video}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2.5 rounded-xl border border-input bg-white/70 p-3 transition-colors hover:border-primary/50 dark:bg-input/30"
-                >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Video className="size-4" />
-                  </span>
-                  <span className="truncate text-sm font-medium text-foreground">
-                    {content.file_title_video}
-                  </span>
-                </a>
-              ))}
+      {VIDEO_INTERVIEW_ENABLED && (
+        <ReviewSection icon={Video} title={t('steps.videoInterview.title')}>
+          {values.applicantFormContents.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic">{t('common.notFilled')}</p>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                {t('summary.interviewCount', { total: values.applicantFormContents.length })}
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {values.applicantFormContents.map((content) => (
+                  <a
+                    key={content.id_question}
+                    href={content.file_video}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2.5 rounded-xl border border-input bg-white/70 p-3 transition-colors hover:border-primary/50 dark:bg-input/30"
+                  >
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Video className="size-4" />
+                    </span>
+                    <span className="truncate text-sm font-medium text-foreground">
+                      {content.file_title_video}
+                    </span>
+                  </a>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-      </ReviewSection>
+          )}
+        </ReviewSection>
+      )}
 
       <ReviewSection icon={FileSignature} title={t('steps.signature.title')}>
         <div className="grid gap-4 sm:grid-cols-2">

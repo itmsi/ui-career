@@ -1,3 +1,5 @@
+export const VIDEO_INTERVIEW_ENABLED = import.meta.env.VITE_ENABLE_VIDEO_INTERVIEW !== 'false'
+
 export const MAX_RERECORDS = 5
 
 type QuestionTiming = { prepSeconds: number; maxSeconds: number }

@@ -2,6 +2,7 @@ import { format } from 'date-fns'
 import { z } from 'zod'
 
 import type { TranslationKey } from '@/i18n/use-language'
+import { VIDEO_INTERVIEW_ENABLED } from '@/video-interview/config'
 
 import {
   BLOOD_TYPE_OPTIONS,
@@ -100,6 +101,8 @@ const interviewContentSchema = z.object({
   file_type_audio: z.string(),
   file_audio: z.string(),
 })
+
+const interviewContentsSchema = z.array(interviewContentSchema)
 
 export const applicantFormSchema = z.object({
   // 1. Applicant Information — wajib
@@ -201,9 +204,9 @@ export const applicantFormSchema = z.object({
   cvDocument: additionalDocumentSchema.refine((doc) => !!doc.file, 'validation.cvRequired'),
   photoDocument: additionalDocumentSchema,
   additionalDocuments: z.array(additionalDocumentSchema),
-  applicantFormContents: z
-    .array(interviewContentSchema)
-    .min(1, 'validation.interviewRequired'),
+  applicantFormContents: VIDEO_INTERVIEW_ENABLED
+    ? interviewContentsSchema.min(1, 'validation.interviewRequired')
+    : interviewContentsSchema,
   applicantSignature: z.string(),
   signatureLink: z.string(),
   signatureDate: z.string(),

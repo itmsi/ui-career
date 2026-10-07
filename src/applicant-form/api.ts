@@ -1,4 +1,5 @@
 import { apiRequest } from '@/lib/api-client'
+import { VIDEO_INTERVIEW_ENABLED } from '@/video-interview/config'
 
 import { FAMILY_ROWS, SCREENING_QUESTIONS, yesNoLabel } from './form-utils'
 import type { AdditionalDocumentItem, ApplicantFormValues } from './types'
@@ -196,7 +197,7 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
     ].filter(
       (doc) => doc.file,
     ),
-    applicant_form_contents: values.applicantFormContents,
+    ...(VIDEO_INTERVIEW_ENABLED ? { applicant_form_contents: values.applicantFormContents } : {}),
     signature_link: values.signatureLink,
     signature_date: values.signatureDate,
   }
