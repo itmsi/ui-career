@@ -31,6 +31,7 @@ import { ReferencesSection } from './sections/references'
 import { ScreeningQuestionsSection } from './sections/screening-questions'
 import { SignatureSection } from './sections/signature'
 import { SummarySection } from './sections/summary'
+import { VideoInterviewSection } from './sections/video-interview'
 import { WorkingExperiencesSection } from './sections/working-experiences'
 import { PendingUploadsContext, type PendingUploadRegistry } from './pending-uploads'
 import { applicantFormSchema } from './schema'
@@ -42,6 +43,8 @@ type FormStep = {
   /** Fields validated before the applicant may leave this step. */
   fields: FieldPath<ApplicantFormValues>[]
   content: React.ReactNode
+  blocked?: boolean
+  locksPrevious?: boolean
 }
 
 /** Kept as data rather than text so a shown error follows the language switcher. */
@@ -80,6 +83,7 @@ export function ApplicantForm({
   const [navMode, setNavMode] = useState<'rail' | 'bar'>('rail')
   const [navCollapsed, setNavCollapsed] = useState(false)
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
+  const [interviewTotal, setInterviewTotal] = useState<number | null>(null)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Files picked but not uploaded yet, registered by the upload fields of the current step.
   const [pendingUploads] = useState(() => {
@@ -141,11 +145,14 @@ export function ApplicantForm({
     }
     reset(defaultValues)
     setStep(0)
+    setInterviewTotal(null)
     setSubmitted(true)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const reviewValues = watch()
+  const interviewComplete =
+    interviewTotal !== null && (reviewValues.applicantFormContents?.length ?? 0) >= interviewTotal
 
   const steps: FormStep[] = [
     {
@@ -224,6 +231,20 @@ export function ApplicantForm({
       content: <SignatureSection token={token} />,
     },
     {
+      title: t('steps.videoInterview.title'),
+      description: t('steps.videoInterview.description'),
+      fields: ['applicantFormContents'],
+      blocked: !interviewComplete,
+      locksPrevious: true,
+      content: (
+        <VideoInterviewSection
+          token={token}
+          fullName={reviewValues.fullName || invitation.full_name}
+          onQuestionCount={setInterviewTotal}
+        />
+      ),
+    },
+    {
       title: t('steps.review.title'),
       description: t('steps.review.description'),
       fields: [],
@@ -234,13 +255,20 @@ export function ApplicantForm({
   const isFirstStep = step === 0
   const isLastStep = step === steps.length - 1
   const current = steps[step]
+  const lockedFrom = steps.findIndex(({ locksPrevious }) => locksPrevious)
+  const isBackLocked = lockedFrom !== -1 && step >= lockedFrom
+
+  function isStepDisabled(index: number) {
+    return isBackLocked && index < step
+  }
 
   function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   function validateStep(index: number) {
-    const { fields } = steps[index]
+    const { fields, blocked } = steps[index]
+    if (blocked) return Promise.resolve(false)
     return fields.length ? trigger(fields, { shouldFocus: true }) : Promise.resolve(true)
   }
 
@@ -273,11 +301,12 @@ export function ApplicantForm({
   }
 
   function handleBack() {
+    if (isBackLocked) return
     guardLeave(() => setStep((s) => Math.max(s - 1, 0)))
   }
 
   function handleStepClick(index: number) {
-    if (index === step) return
+    if (index === step || isStepDisabled(index)) return
     guardLeave(() => void goToStep(index))
   }
 
@@ -337,6 +366,7 @@ export function ApplicantForm({
               steps={steps}
               currentStep={step}
               onStepClick={handleStepClick}
+              isStepDisabled={isStepDisabled}
               mode={navMode}
               collapsed={navCollapsed}
               onModeChange={setNavMode}
@@ -380,16 +410,18 @@ export function ApplicantForm({
                     type="button"
                     variant="outline"
                     onClick={handleBack}
-                    disabled={isFirstStep}
+                    disabled={isFirstStep || isBackLocked}
                   >
                     {t('form.back')}
                   </Button>
 
                   <div className="flex items-center gap-4">
                     <span className="hidden text-[11px] font-semibold text-muted-foreground/70 sm:inline">
-                      {lastSavedAt
-                        ? t('form.savedAt', { time: format(lastSavedAt, 'HH:mm') })
-                        : t('form.notSaved')}
+                      {current.blocked
+                        ? t('form.interviewPending')
+                        : lastSavedAt
+                          ? t('form.savedAt', { time: format(lastSavedAt, 'HH:mm') })
+                          : t('form.notSaved')}
                     </span>
 
                     {/* Distinct keys stop React from reusing the "Lanjut" <button> as the
@@ -406,7 +438,12 @@ export function ApplicantForm({
                         {isSubmitting ? t('form.submitting') : t('form.submit')}
                       </Button>
                     ) : (
-                      <Button key="next" type="button" onClick={handleNext}>
+                      <Button
+                        key="next"
+                        type="button"
+                        onClick={handleNext}
+                        disabled={current.blocked}
+                      >
                         {t('form.next')}
                       </Button>
                     )}

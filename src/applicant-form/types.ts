@@ -91,6 +91,7 @@ export const defaultValues: ApplicantFormValues = {
   cvDocument: { file_title: '', file_type: '', file: '' },
   photoDocument: { file_title: '', file_type: '', file: '' },
   additionalDocuments: [],
+  applicantFormContents: [],
   applicantSignature: '',
   signatureLink: '',
   signatureDate: format(new Date(), 'yyyy-MM-dd'),

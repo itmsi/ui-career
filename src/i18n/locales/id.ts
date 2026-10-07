@@ -32,6 +32,7 @@ export const id = {
     stepCounter: 'Langkah {{current}} / {{total}}',
     savedAt: 'Tersimpan {{time}}',
     notSaved: 'Draf belum tersimpan',
+    interviewPending: 'Selesaikan seluruh pertanyaan wawancara untuk melanjutkan.',
     back: 'Kembali',
     next: 'Lanjut',
     submit: 'Kirim Lamaran',
@@ -91,6 +92,11 @@ export const id = {
       title: 'Tanda Tangan',
       description:
         'Saya menyatakan bahwa seluruh jawaban yang saya berikan benar dan lengkap sesuai pengetahuan saya.',
+    },
+    videoInterview: {
+      title: 'Wawancara Video',
+      description:
+        'Jawab setiap pertanyaan dengan merekam video. Setelah masuk ke langkah ini, Anda tidak dapat kembali mengubah data formulir.',
     },
     review: {
       title: 'Review & Ringkasan',
@@ -286,6 +292,7 @@ export const id = {
     emptyWork: 'Belum ada data pengalaman kerja / magang.',
     emptyReferences: 'Belum ada data referensi.',
     emptyDocuments: 'Belum ada dokumen.',
+    interviewCount: '{{total}} jawaban video terkirim',
     placeDateOfBirth: 'Tempat, Tanggal Lahir',
   },
   validation: {
@@ -332,6 +339,111 @@ export const id = {
     referencePositionRequired: 'Jabatan referensi wajib diisi',
     referencePhoneRequired: 'Telepon referensi wajib diisi',
     cvRequired: 'CV wajib diunggah',
+    interviewRequired: 'Selesaikan seluruh pertanyaan wawancara video',
+  },
+  videoInterview: {
+    progress: 'Soal {{current}} dari {{total}}',
+    load: {
+      loading: 'Memuat pertanyaan wawancara...',
+      failed: 'Gagal memuat pertanyaan wawancara. Periksa koneksi Anda lalu coba lagi.',
+      questionsInvalid:
+        'Daftar pertanyaan tidak dapat dimuat dengan benar. Silakan hubungi tim kami.',
+      retry: 'Coba lagi',
+    },
+    intro: {
+      greeting: 'Halo, {{name}}',
+      description:
+        'Anda akan menjawab beberapa pertanyaan dengan merekam video. Mohon baca ketentuan berikut.',
+      ruleQuestions: 'Ada {{count}} pertanyaan yang dijawab satu per satu.',
+      ruleTime:
+        'Setiap pertanyaan memiliki waktu persiapan dan batas waktu merekam. Pertanyaan baru tampil saat rekaman dimulai.',
+      ruleRerecord: 'Anda dapat merekam ulang jawaban sebelum mengirimnya.',
+      ruleNoBack:
+        'Setelah jawaban dikirim, Anda tidak dapat mengubahnya atau kembali ke pertanyaan sebelumnya.',
+      ruleLocked: 'Setelah memulai wawancara, Anda tidak dapat kembali mengubah data formulir.',
+      ruleLanguage: 'Anda dapat menjawab dalam Bahasa Indonesia, Inggris, atau Mandarin.',
+      consentTitle: 'Persetujuan',
+      consent:
+        'Saya menyetujui bahwa video dan suara saya akan direkam, disimpan, dan diproses oleh perusahaan untuk keperluan proses rekrutmen. Saya memahami bahwa rekaman tersebut dapat digunakan untuk evaluasi dan penilaian selama proses seleksi.',
+      consentLabel: 'Saya telah membaca dan menyetujui ketentuan di atas.',
+      consentRequired: 'Centang persetujuan untuk melanjutkan.',
+      continue: 'Lanjut',
+    },
+    device: {
+      title: 'Periksa Kamera & Mikrofon',
+      description:
+        'Izinkan akses kamera dan mikrofon, lalu pastikan gambar dan suara Anda terdeteksi sebelum memulai.',
+      allow: 'Izinkan Kamera & Mikrofon',
+      allowing: 'Menunggu izin...',
+      tryAgain: 'Coba lagi',
+      cameraReady: 'Kamera dan mikrofon aktif.',
+      micLevel: 'Level suara',
+      notReady: 'Izinkan kamera dan mikrofon untuk melanjutkan.',
+      start: 'Mulai Wawancara',
+    },
+    mediaError: {
+      deniedTitle: 'Akses kamera atau mikrofon ditolak',
+      deniedBody:
+        'Buka pengaturan situs di browser Anda, izinkan kamera dan mikrofon untuk halaman ini, lalu coba lagi.',
+      notFoundTitle: 'Kamera atau mikrofon tidak ditemukan',
+      notFoundBody: 'Sambungkan kamera dan mikrofon ke perangkat Anda, lalu coba lagi.',
+      inUseTitle: 'Kamera atau mikrofon sedang dipakai',
+      inUseBody: 'Tutup aplikasi lain yang memakai kamera atau mikrofon, lalu coba lagi.',
+      insecureTitle: 'Koneksi tidak aman',
+      insecureBody:
+        'Kamera hanya dapat dipakai lewat koneksi aman (HTTPS). Buka halaman ini melalui tautan https.',
+      unsupportedTitle: 'Browser tidak didukung',
+      unsupportedBody:
+        'Browser Anda belum mendukung perekaman video. Gunakan versi terbaru Chrome, Edge, Firefox, atau Safari.',
+      deviceLostTitle: 'Kamera atau mikrofon terputus',
+      deviceLostBody:
+        'Perangkat tidak lagi terdeteksi. Pastikan perangkat tersambung, lalu izinkan kembali.',
+      unknownTitle: 'Tidak dapat mengakses perangkat',
+      unknownBody: 'Terjadi kendala saat mengakses kamera atau mikrofon. Silakan coba lagi.',
+    },
+    prepare: {
+      title: 'Bersiap',
+      hint:
+        'Pertanyaan akan muncul saat rekaman dimulai. Tekan tombol di bawah bila Anda sudah siap.',
+      timeLeft: 'Panduan waktu persiapan',
+      timeUp: 'Waktu persiapan telah habis. Tekan Mulai bila Anda siap.',
+      start: 'Mulai Rekam',
+      rerecordHint: 'Anda merekam ulang jawaban ini. Tekan tombol bila sudah siap.',
+    },
+    record: {
+      recording: 'Merekam',
+      timeLeft: 'Sisa waktu',
+      elapsed: 'Terpakai',
+      finish: 'Selesai Merekam',
+      tenSeconds: '10 detik tersisa',
+      questionLabel: 'Pertanyaan',
+    },
+    review: {
+      title: 'Tinjau Jawaban',
+      description: 'Putar rekaman Anda. Kirim jawaban bila sudah sesuai, atau rekam ulang.',
+      duration: 'Durasi {{time}}',
+      submit: 'Kirim Jawaban',
+      rerecord: 'Rekam Ulang',
+      rerecordLimit: 'Batas rekam ulang telah tercapai.',
+      playbackFailed: 'Rekaman tidak dapat diputar di browser ini, tetapi tetap dapat dikirim.',
+    },
+    upload: {
+      title: 'Mengirim Jawaban',
+      description: 'Jangan tutup halaman ini sampai pengiriman selesai.',
+      percent: '{{percent}}%',
+      failedTitle: 'Pengiriman Gagal',
+      tooLarge: 'Ukuran rekaman terlalu besar untuk dikirim.',
+      unsupportedFormat: 'Format rekaman tidak didukung oleh server.',
+      network: 'Koneksi terputus. Periksa jaringan Anda lalu coba lagi.',
+      failed: 'Gagal mengirim jawaban. Silakan coba lagi.',
+      retry: 'Coba Lagi',
+      backToReview: 'Kembali ke Tinjauan',
+    },
+    done: {
+      title: 'Wawancara Selesai',
+      description:
+        'Seluruh jawaban wawancara video Anda sudah terkirim. Lanjutkan ke langkah berikutnya.',
+    },
   },
 }
 

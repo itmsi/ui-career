@@ -91,6 +91,16 @@ const additionalDocumentSchema = z.object({
   file: z.string(),
 })
 
+const interviewContentSchema = z.object({
+  id_question: z.string(),
+  file_title_video: z.string(),
+  file_type_video: z.string(),
+  file_video: z.string(),
+  file_title_audio: z.string(),
+  file_type_audio: z.string(),
+  file_audio: z.string(),
+})
+
 export const applicantFormSchema = z.object({
   // 1. Applicant Information — wajib
   fullName: requiredText('validation.fullNameRequired'),
@@ -191,6 +201,9 @@ export const applicantFormSchema = z.object({
   cvDocument: additionalDocumentSchema.refine((doc) => !!doc.file, 'validation.cvRequired'),
   photoDocument: additionalDocumentSchema,
   additionalDocuments: z.array(additionalDocumentSchema),
+  applicantFormContents: z
+    .array(interviewContentSchema)
+    .min(1, 'validation.interviewRequired'),
   applicantSignature: z.string(),
   signatureLink: z.string(),
   signatureDate: z.string(),

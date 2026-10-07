@@ -196,6 +196,7 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
     ].filter(
       (doc) => doc.file,
     ),
+    applicant_form_contents: values.applicantFormContents,
     signature_link: values.signatureLink,
     signature_date: values.signatureDate,
   }

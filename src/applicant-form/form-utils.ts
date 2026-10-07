@@ -85,11 +85,53 @@ function mergeDraft<T>(defaults: T, draft: unknown): T {
   return typeof draft === typeof defaults ? (draft as T) : defaults
 }
 
+const INTERVIEW_CONTENT_KEYS = [
+  'id_question',
+  'file_title_video',
+  'file_type_video',
+  'file_video',
+  'file_title_audio',
+  'file_type_audio',
+  'file_audio',
+] as const
+
+function sanitizeInterviewContents(draft: unknown): ApplicantFormValues['applicantFormContents'] {
+  if (!Array.isArray(draft)) return []
+  const byQuestion = new Map<string, ApplicantFormValues['applicantFormContents'][number]>()
+  for (const item of draft) {
+    if (!isPlainObject(item)) continue
+    const candidate: Record<string, unknown> = {
+      ...item,
+      id_question: item.id_question ?? item.question_id,
+    }
+    const values = INTERVIEW_CONTENT_KEYS.map((key) => candidate[key])
+    if (!values.every((value) => typeof value === 'string' && value)) continue
+    const [id_question, file_title_video, file_type_video, file_video, file_title_audio, file_type_audio, file_audio] =
+      values as string[]
+    byQuestion.set(id_question, {
+      id_question,
+      file_title_video,
+      file_type_video,
+      file_video,
+      file_title_audio,
+      file_type_audio,
+      file_audio,
+    })
+  }
+  return [...byQuestion.values()]
+}
+
 export function loadDraftValues(): ApplicantFormValues {
   try {
     const raw = window.localStorage.getItem(DRAFT_STORAGE_KEY)
     if (!raw) return defaultValues
-    return mergeDraft(defaultValues, JSON.parse(raw))
+    const draft: unknown = JSON.parse(raw)
+    return {
+      ...mergeDraft(defaultValues, draft),
+      applicantFormContents: sanitizeInterviewContents(
+        isPlainObject(draft) ? draft.applicantFormContents : undefined,
+      ),
+    }
   } catch {
     return defaultValues
   }

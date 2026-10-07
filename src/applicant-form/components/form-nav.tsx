@@ -129,6 +129,7 @@ export function FormNav({
   steps,
   currentStep,
   onStepClick,
+  isStepDisabled,
   mode,
   collapsed,
   onModeChange,
@@ -137,6 +138,7 @@ export function FormNav({
   steps: Array<{ title: string }>
   currentStep: number
   onStepClick: (index: number) => void
+  isStepDisabled?: (index: number) => boolean
   mode: NavMode
   collapsed: boolean
   onModeChange: (mode: NavMode) => void
@@ -176,7 +178,9 @@ export function FormNav({
             type="button"
             title={s.title}
             onClick={() => onStepClick(index)}
+            disabled={isStepDisabled?.(index)}
             className={cn(
+              'disabled:cursor-not-allowed disabled:opacity-40',
               'flex size-[26px] shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold transition-colors',
               index <= currentStep ? 'border-sidebar-foreground' : 'border-sidebar-foreground/35',
               index === currentStep && 'bg-sidebar-accent',
@@ -228,7 +232,9 @@ export function FormNav({
               key={s.title}
               type="button"
               onClick={() => onStepClick(index)}
+            disabled={isStepDisabled?.(index)}
               className={cn(
+              'disabled:cursor-not-allowed disabled:opacity-40',
                 'grid grid-cols-[30px_1fr] items-center gap-3 border-t border-sidebar-foreground/15 px-6 py-3 -mx-6 text-left transition-colors',
                 index === currentStep && 'rounded-2xl bg-sidebar-accent',
               )}
@@ -316,7 +322,9 @@ export function FormNav({
             key={s.title}
             type="button"
             onClick={() => onStepClick(index)}
+            disabled={isStepDisabled?.(index)}
             className={cn(
+              'disabled:cursor-not-allowed disabled:opacity-40',
               'min-w-[112px] flex-1 rounded-t-md border-t-2 px-3 pt-3 pb-4 text-left transition-colors',
               index <= currentStep ? 'border-t-sidebar-foreground' : 'border-t-sidebar-foreground/25',
             )}

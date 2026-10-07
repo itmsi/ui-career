@@ -30,6 +30,7 @@ export const en: TranslationMessages = {
     stepCounter: 'Step {{current}} / {{total}}',
     savedAt: 'Saved {{time}}',
     notSaved: 'Draft not saved yet',
+    interviewPending: 'Complete all interview questions to continue.',
     back: 'Back',
     next: 'Next',
     submit: 'Submit Application',
@@ -89,6 +90,11 @@ export const en: TranslationMessages = {
       title: 'Signature',
       description:
         'I certify that all answers given herein are true and complete to the best of my knowledge.',
+    },
+    videoInterview: {
+      title: 'Video Interview',
+      description:
+        'Answer each question by recording a video. Once you enter this step, you cannot go back to change your form data.',
     },
     review: {
       title: 'Review & Summary',
@@ -284,6 +290,7 @@ export const en: TranslationMessages = {
     emptyWork: 'No work / internship experience yet.',
     emptyReferences: 'No references yet.',
     emptyDocuments: 'No documents yet.',
+    interviewCount: '{{total}} video answers submitted',
     placeDateOfBirth: 'Place, Date of Birth',
   },
   validation: {
@@ -330,5 +337,110 @@ export const en: TranslationMessages = {
     referencePositionRequired: 'Reference position is required',
     referencePhoneRequired: 'Reference phone is required',
     cvRequired: 'CV is required',
+    interviewRequired: 'Complete all video interview questions',
+  },
+  videoInterview: {
+    progress: 'Question {{current}} of {{total}}',
+    load: {
+      loading: 'Loading interview questions...',
+      failed: 'Could not load the interview questions. Check your connection and try again.',
+      questionsInvalid: 'The question list could not be loaded correctly. Please contact our team.',
+      retry: 'Try again',
+    },
+    intro: {
+      greeting: 'Hello, {{name}}',
+      description:
+        'You will answer several questions by recording a video. Please read the following.',
+      ruleQuestions: 'There are {{count}} questions, answered one at a time.',
+      ruleTime:
+        'Each question has preparation time and a recording time limit. The question appears when recording starts.',
+      ruleRerecord: 'You can re-record your answer before submitting it.',
+      ruleNoBack:
+        'Once an answer is submitted, you cannot change it or go back to a previous question.',
+      ruleLocked: 'Once you start the interview, you cannot go back to change your form data.',
+      ruleLanguage: 'You may answer in Indonesian, English, or Mandarin.',
+      consentTitle: 'Consent',
+      consent:
+        'I consent to having my video and voice recorded, stored, and processed by the company for recruitment purposes. I understand that the recording may be used for evaluation and assessment during the selection process.',
+      consentLabel: 'I have read and agree to the terms above.',
+      consentRequired: 'Tick the consent box to continue.',
+      continue: 'Continue',
+    },
+    device: {
+      title: 'Check Camera & Microphone',
+      description:
+        'Allow access to your camera and microphone, then make sure your image and voice are detected before you begin.',
+      allow: 'Allow Camera & Microphone',
+      allowing: 'Waiting for permission...',
+      tryAgain: 'Try again',
+      cameraReady: 'Camera and microphone are on.',
+      micLevel: 'Sound level',
+      notReady: 'Allow your camera and microphone to continue.',
+      start: 'Start Interview',
+    },
+    mediaError: {
+      deniedTitle: 'Camera or microphone access was denied',
+      deniedBody:
+        'Open the site settings in your browser, allow the camera and microphone for this page, then try again.',
+      notFoundTitle: 'Camera or microphone not found',
+      notFoundBody: 'Connect a camera and microphone to your device, then try again.',
+      inUseTitle: 'Camera or microphone is in use',
+      inUseBody: 'Close any other app using the camera or microphone, then try again.',
+      insecureTitle: 'Connection is not secure',
+      insecureBody:
+        'The camera can only be used over a secure connection (HTTPS). Open this page through an https link.',
+      unsupportedTitle: 'Browser not supported',
+      unsupportedBody:
+        'Your browser does not support video recording yet. Use the latest version of Chrome, Edge, Firefox, or Safari.',
+      deviceLostTitle: 'Camera or microphone disconnected',
+      deviceLostBody:
+        'The device is no longer detected. Make sure it is connected, then allow access again.',
+      unknownTitle: 'Could not access your device',
+      unknownBody:
+        'Something went wrong while accessing the camera or microphone. Please try again.',
+    },
+    prepare: {
+      title: 'Get Ready',
+      hint:
+        'The question appears when recording starts. Press the button below when you are ready.',
+      timeLeft: 'Preparation time guide',
+      timeUp: 'Preparation time is up. Press Start when you are ready.',
+      start: 'Start Recording',
+      rerecordHint: 'You are re-recording this answer. Press the button when you are ready.',
+    },
+    record: {
+      recording: 'Recording',
+      timeLeft: 'Time left',
+      elapsed: 'Elapsed',
+      finish: 'Finish Recording',
+      tenSeconds: '10 seconds left',
+      questionLabel: 'Question',
+    },
+    review: {
+      title: 'Review Your Answer',
+      description: 'Play back your recording. Submit it if you are happy with it, or record again.',
+      duration: 'Duration {{time}}',
+      submit: 'Submit Answer',
+      rerecord: 'Record Again',
+      rerecordLimit: 'The re-record limit has been reached.',
+      playbackFailed: 'This browser cannot play the recording, but you can still submit it.',
+    },
+    upload: {
+      title: 'Submitting Your Answer',
+      description: 'Please do not close this page until submission is complete.',
+      percent: '{{percent}}%',
+      failedTitle: 'Submission Failed',
+      tooLarge: 'The recording is too large to submit.',
+      unsupportedFormat: 'The server does not support this recording format.',
+      network: 'Connection lost. Check your network and try again.',
+      failed: 'Could not submit your answer. Please try again.',
+      retry: 'Try Again',
+      backToReview: 'Back to Review',
+    },
+    done: {
+      title: 'Interview Complete',
+      description:
+        'All your video interview answers have been submitted. Continue to the next step.',
+    },
   },
 }
