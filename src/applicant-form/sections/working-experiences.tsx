@@ -1,103 +1,80 @@
+import { startOfToday } from 'date-fns'
 import { Plus } from 'lucide-react'
-import type { Control, FieldArrayWithId } from 'react-hook-form'
+import { useFieldArray, useFormContext } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
-import { Field, FieldLabel } from '@/components/ui/field'
 
 import { DatePickerField } from '../components/date-picker-field'
 import { EntryCard } from '../components/entry-card'
-import { EntryInput } from '../components/entry-input'
-import { captionLabelClass } from '../form-utils'
-import type { ApplicantFormValues, RegisterFn } from '../types'
+import { TextField } from '../components/form-fields'
+import { WORK_EXPERIENCE_MIN } from '../form-utils'
+import { emptyWorkExperienceRow, type ApplicantFormValues } from '../types'
 
-export function WorkingExperiencesSection({
-  register,
-  control,
-  fields,
-  onAppend,
-  onRemove,
-}: {
-  register: RegisterFn
-  control: Control<ApplicantFormValues>
-  fields: FieldArrayWithId<ApplicantFormValues, 'workExperience', 'id'>[]
-  onAppend: () => void
-  onRemove: (index: number) => void
-}) {
+export function WorkingExperiencesSection() {
+  const { t } = useTranslation()
+  const { control } = useFormContext<ApplicantFormValues>()
+  const { fields, append, remove } = useFieldArray({ control, name: 'workExperience' })
+  const today = startOfToday()
+
   return (
     <div className="space-y-3">
-      {fields.map((field, index) => (
-        <EntryCard
-          key={field.id}
-          index={index + 1}
-          label={`Pengalaman Kerja ${index + 1}`}
-          columns={3}
-          onRemove={fields.length > 1 ? () => onRemove(index) : undefined}
-        >
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Name of Company/ Nama Perusahaan
-            </FieldLabel>
-            <EntryInput
+      {fields.map((field, index) => {
+        const required = index < WORK_EXPERIENCE_MIN
+        return (
+          <EntryCard
+            key={field.id}
+            index={index + 1}
+            label={t('work.cardTitle', { number: index + 1 })}
+            columns={3}
+            required={required}
+            onRemove={required ? undefined : () => remove(index)}
+          >
+            <TextField
               name={`workExperience.${index}.companyName`}
-              register={register}
+              label={t('fields.companyName')}
+              required={required}
             />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Employment Date From/ dari
-            </FieldLabel>
             <DatePickerField
               name={`workExperience.${index}.dateFrom`}
-              control={control}
+              label={t('fields.dateFrom')}
+              required={required}
+              disabled={{ after: today }}
+              startMonth={new Date(1970, 0)}
+              endMonth={today}
             />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Employment Date Final/ terakhir
-            </FieldLabel>
             <DatePickerField
               name={`workExperience.${index}.dateFinal`}
-              control={control}
+              label={t('fields.dateFinal')}
+              disabled={{ after: today }}
+              startMonth={new Date(1970, 0)}
+              endMonth={today}
             />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Pay of Salary/ Gaji yg dibayar
-            </FieldLabel>
-            <EntryInput
+            <TextField
               name={`workExperience.${index}.salary`}
-              register={register}
+              label={t('fields.salary')}
+              inputMode="numeric"
             />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Name of Supervisor/ Nama Atasan langsung
-            </FieldLabel>
-            <EntryInput
+            <TextField
               name={`workExperience.${index}.supervisorName`}
-              register={register}
+              label={t('fields.supervisorName')}
             />
-          </Field>
-          <Field>
-            <FieldLabel className={captionLabelClass}>
-              Reason for Leaving/ Alasan mengundurkan diri
-            </FieldLabel>
-            <EntryInput
+            <TextField
               name={`workExperience.${index}.reasonForLeaving`}
-              register={register}
+              label={t('fields.reasonForLeaving')}
             />
-          </Field>
-        </EntryCard>
-      ))}
+          </EntryCard>
+        )
+      })}
 
       <Button
         type="button"
         variant="outline"
-        onClick={onAppend}
+        onClick={() => append({ ...emptyWorkExperienceRow })}
         className="w-full border-dashed"
       >
         <Plus className="size-4" />
-        Tambah Pengalaman Kerja
+        {t('work.add')}
       </Button>
     </div>
   )

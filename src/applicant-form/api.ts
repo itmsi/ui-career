@@ -1,7 +1,8 @@
 import { apiRequest } from '@/lib/api-client'
+import { VIDEO_INTERVIEW_ENABLED } from '@/video-interview/config'
 
-import { EDUCATION_ROWS, FAMILY_ROWS, SCREENING_QUESTIONS, yesNoLabel } from './form-utils'
-import type { ApplicantFormValues } from './types'
+import { FAMILY_ROWS, SCREENING_QUESTIONS, yesNoLabel } from './form-utils'
+import type { AdditionalDocumentItem, ApplicantFormValues } from './types'
 
 export type InvitationVerifyResponse = {
   id: string
@@ -64,6 +65,45 @@ export async function uploadApplicantFormSignature(
   return response.data
 }
 
+type ApplicantFormFileApiResponse = {
+  success: boolean
+  message: string
+  data: AdditionalDocumentItem
+}
+
+/** Mime type -> `file_type` value expected by the upload endpoint. */
+const APPLICANT_FORM_FILE_TYPE_BY_MIME: Record<string, string> = {
+  'image/png': 'image',
+  'image/jpeg': 'image',
+  'image/webp': 'image',
+  'application/pdf': 'document',
+}
+
+export function applicantFormFileTypeFor(file: File): string {
+  return APPLICANT_FORM_FILE_TYPE_BY_MIME[file.type] ?? 'document'
+}
+
+export async function uploadApplicantFormFile(
+  token: string,
+  file: File,
+  fileTitle: string,
+): Promise<AdditionalDocumentItem> {
+  const formData = new FormData()
+  formData.append('file_title', fileTitle)
+  formData.append('file_type', applicantFormFileTypeFor(file))
+  formData.append('file', file)
+
+  const response = await apiRequest<ApplicantFormFileApiResponse>(
+    '/applicant-form-files/create',
+    {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      data: formData,
+    },
+  )
+  return response.data
+}
+
 function dataUrlToFile(dataUrl: string, filename: string): File {
   const [header, base64] = dataUrl.split(',')
   const mime = header.match(/data:(.*?);base64/)?.[1] ?? 'image/png'
@@ -86,12 +126,12 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
     position_applied_for: values.positionApplied,
     marital_status: values.maritalStatus,
     height_weight: values.heightWeight,
-    driver_license: [
-      values.driverLicense.simA && { name: 'SIM A' },
-      values.driverLicense.simB && { name: 'SIM B' },
-      values.driverLicense.simC && { name: 'SIM C' },
-      values.driverLicense.sio && { name: 'SIO' },
-    ].filter((item): item is { name: string } => Boolean(item)),
+    // Typed as free text ("SIM A, SIM C"); each comma-separated entry is one licence.
+    driver_license: values.driverLicense
+      .split(',')
+      .map((name) => name.trim())
+      .filter(Boolean)
+      .map((name) => ({ name })),
     address_as_per_id_card: values.addressIdCard,
     present_address: values.presentAddress,
     city: values.city,
@@ -101,17 +141,17 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
     working_available_date: values.workingAvailableDate,
     relogion: values.religion,
     tshirt_size: values.tshirtSize,
-    educational_background: EDUCATION_ROWS.map((row) => {
-      const v = values.education[row.key]
-      return {
-        type_of_school: row.typeOfSchool,
-        name_of_school: v.schoolName,
-        location: v.location,
-        graduate: v.graduate,
-        major: v.major,
-        graduation_year: v.graduationYear,
-      }
-    }),
+    // Only the last education is collected; its level (s3 … sd) is the school type.
+    educational_background: [
+      {
+        type_of_school: values.lastEducation.toLowerCase(),
+        name_of_school: values.education.schoolName,
+        location: values.education.location,
+        graduate: values.education.graduate,
+        major: values.education.major,
+        graduation_year: values.education.graduationYear,
+      },
+    ],
     informal_education_special_qualification: values.informalEducation.map((row) => ({
       type_of_training: row.trainingName,
       institution_name: row.institutionName,
@@ -146,6 +186,18 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
       question,
       answers: yesNoLabel(values[name]),
     })),
+    // NOTE: field name assumed to mirror the upload endpoint's resource name
+    // (`/applicant-form-files/create`); confirm with backend and rename if it differs.
+    // The CV and photo are uploaded through the same endpoint, so they travel with the
+    // other files.
+    applicant_form_files: [
+      values.cvDocument,
+      values.photoDocument,
+      ...values.additionalDocuments,
+    ].filter(
+      (doc) => doc.file,
+    ),
+    ...(VIDEO_INTERVIEW_ENABLED ? { applicant_form_contents: values.applicantFormContents } : {}),
     signature_link: values.signatureLink,
     signature_date: values.signatureDate,
   }

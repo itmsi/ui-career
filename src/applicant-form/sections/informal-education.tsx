@@ -1,91 +1,64 @@
 import { Plus } from 'lucide-react'
-import type { FieldArrayWithId } from 'react-hook-form'
+import { useFieldArray, useFormContext } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
-import { Field, FieldLabel } from '@/components/ui/field'
 
 import { EntryCard } from '../components/entry-card'
-import { EntryInput } from '../components/entry-input'
-import { captionLabelClass } from '../form-utils'
-import type { ApplicantFormValues, RegisterFn } from '../types'
+import { TextField } from '../components/form-fields'
+import { emptyInformalEducationRow, type ApplicantFormValues } from '../types'
 
-export function InformalEducationSection({
-  register,
-  fields,
-  onAppend,
-  onRemove,
-}: {
-  register: RegisterFn
-  fields: FieldArrayWithId<ApplicantFormValues, 'informalEducation', 'id'>[]
-  onAppend: () => void
-  onRemove: (index: number) => void
-}) {
+export function InformalEducationSection() {
+  const { t } = useTranslation()
+  const { control } = useFormContext<ApplicantFormValues>()
+  const { fields, append, remove } = useFieldArray({ control, name: 'informalEducation' })
+
   return (
     <div className="space-y-3">
       {fields.map((field, index) => (
         <EntryCard
           key={field.id}
           index={index + 1}
-          label={`Pelatihan / Keterampilan ${index + 1}`}
+          label={t('informal.cardTitle', { number: index + 1 })}
           columns={5}
-          onRemove={fields.length > 1 ? () => onRemove(index) : undefined}
+          onRemove={fields.length > 1 ? () => remove(index) : undefined}
         >
-          <Field className="justify-between">
-            <FieldLabel className={captionLabelClass}>
-              Type of Training/ Name of Skill/ Jenis Pelatihan/ Nama Keterampilan
-            </FieldLabel>
-            <EntryInput
-              name={`informalEducation.${index}.trainingName`}
-              register={register}
-            />
-          </Field>
-          <Field className="justify-between">
-            <FieldLabel className={captionLabelClass}>
-              Institution&apos;s Name/ Nama Institusi Pelatihan
-            </FieldLabel>
-            <EntryInput
-              name={`informalEducation.${index}.institutionName`}
-              register={register}
-            />
-          </Field>
-          <Field className="justify-between">
-            <FieldLabel className={captionLabelClass}>
-              Location/ Tempat
-            </FieldLabel>
-            <EntryInput
-              name={`informalEducation.${index}.location`}
-              register={register}
-            />
-          </Field>
-          <Field className="justify-between">
-            <FieldLabel className={captionLabelClass}>
-              Certification/ Sertifikasi
-            </FieldLabel>
-            <EntryInput
-              name={`informalEducation.${index}.certification`}
-              register={register}
-            />
-          </Field>
-          <Field className="justify-between">
-            <FieldLabel className={captionLabelClass}>
-              Periode/ Waktu
-            </FieldLabel>
-            <EntryInput
-              name={`informalEducation.${index}.period`}
-              register={register}
-            />
-          </Field>
+          <TextField
+            name={`informalEducation.${index}.trainingName`}
+            label={t('fields.trainingName')}
+            className="justify-between"
+          />
+          <TextField
+            name={`informalEducation.${index}.institutionName`}
+            label={t('fields.institutionName')}
+            className="justify-between"
+          />
+          <TextField
+            name={`informalEducation.${index}.location`}
+            label={t('fields.location')}
+            className="justify-between"
+          />
+          <TextField
+            name={`informalEducation.${index}.certification`}
+            label={t('fields.certification')}
+            className="justify-between"
+          />
+          <TextField
+            name={`informalEducation.${index}.period`}
+            label={t('fields.period')}
+            className="justify-between"
+          />
         </EntryCard>
       ))}
 
       <Button
         type="button"
         variant="outline"
-        onClick={onAppend}
+        onClick={() => append({ ...emptyInformalEducationRow })}
         className="w-full border-dashed"
       >
         <Plus className="size-4" />
-        Tambah Pelatihan / Keterampilan
+        {t('informal.add')}
       </Button>
     </div>
   )
