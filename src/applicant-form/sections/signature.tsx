@@ -1,25 +1,21 @@
-import type { Control } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
-import { Field, FieldLabel } from '@/components/ui/field'
+import { Field } from '@/components/ui/field'
 
 import { DatePickerField } from '../components/date-picker-field'
+import { FieldCaption } from '../components/form-fields'
 import { SignaturePadField } from '../components/signature-pad-field'
-import { captionLabelClass } from '../form-utils'
 import type { ApplicantFormValues } from '../types'
 
-export function SignatureSection({
-  control,
-  token,
-}: {
-  control: Control<ApplicantFormValues>
-  token: string
-}) {
+export function SignatureSection({ token }: { token: string }) {
+  const { t } = useTranslation()
+  const { control } = useFormContext<ApplicantFormValues>()
+
   return (
-    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
       <Field className="sm:col-span-2">
-        <FieldLabel htmlFor="applicantSignature" className={captionLabelClass}>
-          Signature of Applicant/ Tanda tangan pelamar
-        </FieldLabel>
+        <FieldCaption htmlFor="applicantSignature">{t('fields.signature')}</FieldCaption>
         <SignaturePadField
           name="applicantSignature"
           linkName="signatureLink"
@@ -28,12 +24,7 @@ export function SignatureSection({
           token={token}
         />
       </Field>
-      <Field>
-        <FieldLabel htmlFor="signatureDate" className={captionLabelClass}>
-          Signature Date /Tanggal Tanda Tangan  
-        </FieldLabel>
-        <DatePickerField id="signatureDate" name="signatureDate" control={control} />
-      </Field>
+      <DatePickerField name="signatureDate" label={t('fields.signatureDate')} />
     </div>
   )
 }

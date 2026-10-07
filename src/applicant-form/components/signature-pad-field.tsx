@@ -8,6 +8,7 @@ import {
   type RegisterOptions,
 } from 'react-hook-form'
 import { Loader2, PenLine, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
@@ -23,6 +24,7 @@ import { cn } from '@/lib/utils'
 import { ApiError } from '@/lib/api-client'
 
 import { uploadApplicantFormSignature } from '../api'
+import { FormFieldError } from './form-fields'
 import type { ApplicantFormValues } from '../types'
 
 export function SignaturePadField({
@@ -42,6 +44,7 @@ export function SignaturePadField({
   className?: string
   rules?: RegisterOptions<ApplicantFormValues, typeof name>
 }) {
+  const { t } = useTranslation()
   const { field, fieldState } = useController({ control, name, rules })
   const { field: linkField } = useController({ control, name: linkName })
   const signatureDate = useWatch({ control, name: dateName })
@@ -68,7 +71,7 @@ export function SignaturePadField({
       linkField.onChange(result.signature_link)
     } catch (error) {
       setUploadError(
-        error instanceof ApiError ? error.message : 'Gagal mengunggah tanda tangan.',
+        error instanceof ApiError ? error.message : t('signature.uploadFailed'),
       )
       throw error
     } finally {
@@ -84,9 +87,7 @@ export function SignaturePadField({
         hasError={!!fieldState.error}
         uploading={uploading}
       />
-      {fieldState.error && (
-        <p className="text-sm font-normal text-destructive">{fieldState.error.message}</p>
-      )}
+      <FormFieldError error={fieldState.error} />
       {uploadError && <p className="text-sm font-normal text-destructive">{uploadError}</p>}
     </div>
   )
@@ -103,6 +104,7 @@ function SignatureField({
   hasError: boolean
   uploading: boolean
 }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
   return (
@@ -117,7 +119,7 @@ function SignatureField({
         {value ? (
           <div className="flex flex-col gap-3 p-4">
             <div className="flex items-center justify-center rounded-lg border border-dashed border-input bg-white p-4">
-              <img src={value} alt="Tanda tangan" className="h-20 max-w-full object-contain" />
+              <img src={value} alt={t('signature.alt')} className="h-20 max-w-full object-contain" />
             </div>
             <div className="flex items-center justify-end gap-2">
               <Button
@@ -129,11 +131,11 @@ function SignatureField({
                 }}
               >
                 <Trash2 className="size-4" />
-                Hapus
+                {t('common.remove')}
               </Button>
               <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)}>
                 <PenLine className="size-4" />
-                Ganti Tanda Tangan
+                {t('signature.change')}
               </Button>
             </div>
           </div>
@@ -150,10 +152,10 @@ function SignatureField({
               <PenLine className="size-5" />
             </span>
             <span className="text-sm font-medium text-foreground">
-              Ketuk untuk menandatangani
+              {t('signature.tapToSign')}
             </span>
             <span className="text-xs text-muted-foreground">
-              Gambar tanda tangan Anda dengan mouse atau jari
+              {t('signature.drawHint')}
             </span>
           </button>
         )}
@@ -193,6 +195,7 @@ function SignaturePadDialog({
   uploading: boolean
   onSave: (dataUrl: string) => void
 }) {
+  const { t } = useTranslation()
   const sigRef = useRef<SignatureCanvas>(null)
 
   useEffect(() => {
@@ -222,11 +225,8 @@ function SignaturePadDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Tanda Tangan</DialogTitle>
-          <DialogDescription>
-            Gambar tanda tangan Anda pada area di bawah ini, lalu
-            simpan.
-          </DialogDescription>
+          <DialogTitle>{t('signature.dialogTitle')}</DialogTitle>
+          <DialogDescription>{t('signature.dialogDescription')}</DialogDescription>
         </DialogHeader>
 
         <div className="overflow-hidden rounded-md border border-input bg-white">
@@ -248,7 +248,7 @@ function SignaturePadDialog({
             disabled={uploading}
             onClick={() => sigRef.current?.clear()}
           >
-            Hapus Coretan
+            {t('signature.clear')}
           </Button>
           <div className="flex gap-2">
             <DialogClose
@@ -256,7 +256,7 @@ function SignaturePadDialog({
               disabled={uploading}
               className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}
             >
-              Batal
+              {t('common.cancel')}
             </DialogClose>
             <Button
               type="button"
@@ -269,7 +269,7 @@ function SignaturePadDialog({
               }}
             >
               {uploading && <Loader2 className="size-4 animate-spin" />}
-              {uploading ? 'Mengunggah...' : 'Simpan'}
+              {uploading ? t('common.uploading') : t('signature.save')}
             </Button>
           </div>
         </DialogFooter>

@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import { Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -8,15 +10,19 @@ export function EntryCard({
   index,
   label,
   columns = 3,
+  required,
   onRemove,
   children,
 }: {
   index: number
   label: string
   columns?: 3 | 4 | 5
+  /** Shows a "Wajib" badge for rows the applicant must fill in. */
+  required?: boolean
   onRemove?: () => void
   children: ReactNode
 }) {
+  const { t } = useTranslation()
   const gridColsClass =
     columns === 5
       ? 'sm:grid-cols-2 lg:grid-cols-5'
@@ -32,6 +38,11 @@ export function EntryCard({
             {String(index).padStart(2, '0')}
           </span>
           <p className="font-heading text-sm font-semibold">{label}</p>
+          {required && (
+            <Badge variant="destructive" className="self-center">
+              {t('common.required')}
+            </Badge>
+          )}
         </div>
         {onRemove && (
           <Button
@@ -39,7 +50,7 @@ export function EntryCard({
             variant="ghost"
             size="icon-sm"
             onClick={onRemove}
-            aria-label="Hapus"
+            aria-label={t('common.remove')}
             className="text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="size-4" />

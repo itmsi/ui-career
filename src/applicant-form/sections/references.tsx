@@ -1,64 +1,66 @@
 import { Plus } from 'lucide-react'
-import type { FieldArrayWithId } from 'react-hook-form'
+import { useFieldArray, useFormContext } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
-import { Field, FieldLabel } from '@/components/ui/field'
 
 import { EntryCard } from '../components/entry-card'
-import { EntryInput } from '../components/entry-input'
-import { REFERENCES_MIN, captionLabelClass } from '../form-utils'
-import type { ApplicantFormValues, RegisterFn } from '../types'
+import { TextField } from '../components/form-fields'
+import { REFERENCES_MIN } from '../form-utils'
+import { emptyReferenceRow, type ApplicantFormValues } from '../types'
 
-export function ReferencesSection({
-  register,
-  fields,
-  onAppend,
-  onRemove,
-}: {
-  register: RegisterFn
-  fields: FieldArrayWithId<ApplicantFormValues, 'references', 'id'>[]
-  onAppend: () => void
-  onRemove: (index: number) => void
-}) {
+export function ReferencesSection() {
+  const { t } = useTranslation()
+  const { control } = useFormContext<ApplicantFormValues>()
+  const { fields, append, remove } = useFieldArray({ control, name: 'references' })
+
   return (
     <div className="space-y-3">
       <div className="grid gap-4 sm:grid-cols-2">
-        {fields.map((field, index) => (
-          <EntryCard
-            key={field.id}
-            index={index + 1}
-            label={`Referensi ${index + 1}`}
-            columns={3}
-            onRemove={fields.length > REFERENCES_MIN ? () => onRemove(index) : undefined}
-          >
-            <Field className="justify-between">
-              <FieldLabel className={captionLabelClass}>Name/ Nama</FieldLabel>
-              <EntryInput name={`references.${index}.name`} register={register} />
-            </Field>
-            <Field className="justify-between">
-              <FieldLabel className={captionLabelClass}>
-                Position Company/ Jabatan
-              </FieldLabel>
-              <EntryInput name={`references.${index}.position`} register={register} />
-            </Field>
-            <Field className="justify-between">
-              <FieldLabel className={captionLabelClass}>
-                Phone / Telepon
-              </FieldLabel>
-              <EntryInput name={`references.${index}.phone`} register={register} />
-            </Field>
-          </EntryCard>
-        ))}
+        {fields.map((field, index) => {
+          const required = index < REFERENCES_MIN
+          return (
+            <EntryCard
+              key={field.id}
+              index={index + 1}
+              label={t('references.cardTitle', { number: index + 1 })}
+              columns={3}
+              required={required}
+              onRemove={required ? undefined : () => remove(index)}
+            >
+              <TextField
+                name={`references.${index}.name`}
+                label={t('fields.name')}
+                required={required}
+                className="justify-between"
+              />
+              <TextField
+                name={`references.${index}.position`}
+                label={t('fields.position')}
+                required={required}
+                className="justify-between"
+              />
+              <TextField
+                name={`references.${index}.phone`}
+                label={t('fields.phone')}
+                type="tel"
+                inputMode="tel"
+                required={required}
+                className="justify-between"
+              />
+            </EntryCard>
+          )
+        })}
       </div>
 
       <Button
         type="button"
         variant="outline"
-        onClick={onAppend}
+        onClick={() => append({ ...emptyReferenceRow })}
         className="w-full border-dashed"
       >
         <Plus className="size-4" />
-        Tambah Referensi
+        {t('references.add')}
       </Button>
     </div>
   )
