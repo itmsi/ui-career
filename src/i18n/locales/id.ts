@@ -96,7 +96,7 @@ export const id = {
     videoInterview: {
       title: 'Wawancara Video',
       description:
-        'Jawab setiap pertanyaan dengan merekam video. Setelah masuk ke langkah ini, Anda tidak dapat kembali mengubah data formulir.',
+        'Jawab setiap pertanyaan dengan merekam video. Setelah wawancara dimulai, Anda tidak dapat kembali mengubah data formulir.',
     },
     review: {
       title: 'Review & Ringkasan',
@@ -171,6 +171,16 @@ export const id = {
       Married: 'Menikah',
       Divorced: 'Cerai Hidup',
       Widowed: 'Cerai Mati',
+    },
+    driverLicense: {
+      'SIM A': 'SIM A',
+      'SIM B1': 'SIM B1',
+      'SIM B1 Umum': 'SIM B1 Umum',
+      'SIM B2': 'SIM B2',
+      'SIM B2 Umum': 'SIM B2 Umum',
+      'SIM C': 'SIM C',
+      'SIM D': 'SIM D',
+      'Tidak Punya': 'Tidak Punya',
     },
     religion: {
       Islam: 'Islam',
@@ -333,6 +343,9 @@ export const id = {
     workExperienceRequired: 'Pengalaman kerja / magang 1 wajib diisi',
     companyNameRequired: 'Nama perusahaan wajib diisi',
     dateFromRequired: 'Tanggal mulai wajib diisi',
+    ageRequired: 'Usia wajib diisi',
+    employmentRequired: 'Pekerjaan wajib diisi',
+    reasonForLeavingRequired: 'Alasan berhenti wajib diisi',
     dateFinalAfterFrom: 'Tanggal terakhir tidak boleh sebelum tanggal mulai',
     referenceRequired: 'Referensi 1 wajib diisi',
     referenceNameRequired: 'Nama referensi wajib diisi',

@@ -42,12 +42,14 @@ export function VideoInterview({
   questions,
   answeredQuestionIds,
   onAnswered,
+  onStarted,
 }: {
   token: string
   fullName: string
   questions: InterviewQuestion[]
   answeredQuestionIds: string[]
   onAnswered: (content: InterviewContent) => void
+  onStarted: () => void
 }) {
   const { t } = useTranslation()
   const { language } = useLanguage()
@@ -150,7 +152,10 @@ export function VideoInterview({
         <IntroScreen
           fullName={fullName}
           totalQuestions={questions.length}
-          onContinue={() => setPhase('device')}
+          onContinue={() => {
+            onStarted()
+            setPhase('device')
+          }}
         />
       )}
 

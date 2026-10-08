@@ -126,12 +126,7 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
     position_applied_for: values.positionApplied,
     marital_status: values.maritalStatus,
     height_weight: values.heightWeight,
-    // Typed as free text ("SIM A, SIM C"); each comma-separated entry is one licence.
-    driver_license: values.driverLicense
-      .split(',')
-      .map((name) => name.trim())
-      .filter(Boolean)
-      .map((name) => ({ name })),
+    driver_license: values.driverLicense.map((name) => ({ name })),
     address_as_per_id_card: values.addressIdCard,
     present_address: values.presentAddress,
     city: values.city,

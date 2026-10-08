@@ -92,7 +92,7 @@ export const zh: TranslationMessages = {
     videoInterview: {
       title: '视频面试',
       description:
-        '请通过录制视频回答每个问题。进入此步骤后，您将无法返回修改表单数据。',
+        '请通过录制视频回答每个问题。面试开始后，您将无法返回修改表单数据。',
     },
     review: {
       title: '核对与汇总',
@@ -167,6 +167,16 @@ export const zh: TranslationMessages = {
       Married: '已婚',
       Divorced: '离异',
       Widowed: '丧偶',
+    },
+    driverLicense: {
+      'SIM A': 'SIM A',
+      'SIM B1': 'SIM B1',
+      'SIM B1 Umum': 'SIM B1 营运',
+      'SIM B2': 'SIM B2',
+      'SIM B2 Umum': 'SIM B2 营运',
+      'SIM C': 'SIM C',
+      'SIM D': 'SIM D',
+      'Tidak Punya': '没有',
     },
     religion: {
       Islam: '伊斯兰教',
@@ -326,6 +336,9 @@ export const zh: TranslationMessages = {
     workExperienceRequired: '工作 / 实习经历 1 为必填项',
     companyNameRequired: '请填写公司名称',
     dateFromRequired: '请选择入职日期',
+    ageRequired: '请填写年龄',
+    employmentRequired: '请填写职业',
+    reasonForLeavingRequired: '请填写离职原因',
     dateFinalAfterFrom: '离职日期不能早于入职日期',
     referenceRequired: '推荐人 1 为必填项',
     referenceNameRequired: '请填写推荐人姓名',

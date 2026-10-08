@@ -32,13 +32,11 @@ export function ReferencesSection() {
                 name={`references.${index}.name`}
                 label={t('fields.name')}
                 required={required}
-                className="justify-between"
               />
               <TextField
                 name={`references.${index}.position`}
                 label={t('fields.position')}
                 required={required}
-                className="justify-between"
               />
               <TextField
                 name={`references.${index}.phone`}
@@ -46,7 +44,6 @@ export function ReferencesSection() {
                 type="tel"
                 inputMode="tel"
                 required={required}
-                className="justify-between"
               />
             </EntryCard>
           )
