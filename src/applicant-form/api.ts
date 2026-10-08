@@ -125,16 +125,12 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
     position_applied_for: values.positionApplied,
     marital_status: values.maritalStatus,
     height_weight: values.heightWeight,
-    // Typed as free text ("SIM A, SIM C"); each comma-separated entry is one licence.
-    driver_license: values.driverLicense
-      .split(',')
-      .map((name) => name.trim())
-      .filter(Boolean)
-      .map((name) => ({ name })),
+    driver_license: values.driverLicense.map((name) => ({ name })),
     address_as_per_id_card: values.addressIdCard,
     present_address: values.presentAddress,
     city: values.city,
-    place_date_of_birth: [values.birthPlace, values.birthDate].filter(Boolean).join(', '),
+    place_of_birth: values.birthPlace,
+    date_of_birth: values.birthDate,
     blood_type: values.bloodType,
     tax_identification_number: values.taxId,
     working_available_date: values.workingAvailableDate,

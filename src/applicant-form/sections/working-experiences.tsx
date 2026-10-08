@@ -62,6 +62,7 @@ export function WorkingExperiencesSection() {
             <TextField
               name={`workExperience.${index}.reasonForLeaving`}
               label={t('fields.reasonForLeaving')}
+              required={required}
             />
           </EntryCard>
         )

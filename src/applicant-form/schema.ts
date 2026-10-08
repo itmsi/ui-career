@@ -70,6 +70,15 @@ const familyRowSchema = z.object({
   emergencyContact: optionalFormat(isPhone, PHONE_MESSAGE),
 })
 
+// Father and mother also need an age and an occupation.
+const parentRowSchema = familyRowSchema.extend({
+  age: requiredText('validation.ageRequired').refine(
+    (value) => AGE_PATTERN.test(value),
+    'validation.ageFormat',
+  ),
+  employment: requiredText('validation.employmentRequired'),
+})
+
 const workExperienceRowSchema = z.object({
   companyName: z.string(),
   dateFrom: z.string(),
@@ -122,7 +131,7 @@ export const applicantFormSchema = z.object({
   // 1. Applicant Information — tidak wajib
   city: z.string(),
   taxId: optionalFormat(isNpwp, 'validation.taxIdFormat'),
-  driverLicense: z.string(),
+  driverLicense: z.array(z.string()),
 
   // 2. Educational History
   lastEducation: requiredOption(LAST_EDUCATION_OPTIONS, 'validation.lastEducationRequired'),
@@ -133,8 +142,8 @@ export const applicantFormSchema = z.object({
 
   // 4. Family Background — ayah & ibu wajib
   family: z.object({
-    father: familyRowSchema.extend({ name: requiredText('validation.fatherNameRequired') }),
-    mother: familyRowSchema.extend({ name: requiredText('validation.motherNameRequired') }),
+    father: parentRowSchema.extend({ name: requiredText('validation.fatherNameRequired') }),
+    mother: parentRowSchema.extend({ name: requiredText('validation.motherNameRequired') }),
     spouse: familyRowSchema,
     child1: familyRowSchema,
     child2: familyRowSchema,
@@ -154,6 +163,13 @@ export const applicantFormSchema = z.object({
     }
     if (isBlank(first.dateFrom)) {
       ctx.addIssue({ code: 'custom', message: 'validation.dateFromRequired', path: [0, 'dateFrom'] })
+    }
+    if (isBlank(first.reasonForLeaving)) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'validation.reasonForLeavingRequired',
+        path: [0, 'reasonForLeaving'],
+      })
     }
     rows.forEach((row, index) => {
       if (row.dateFrom && row.dateFinal && row.dateFinal < row.dateFrom) {

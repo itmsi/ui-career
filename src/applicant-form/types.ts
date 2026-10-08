@@ -70,7 +70,7 @@ export const defaultValues: ApplicantFormValues = {
   religion: '',
   heightWeight: '',
   tshirtSize: '',
-  driverLicense: '',
+  driverLicense: [],
   lastEducation: '',
   education: { ...emptyEducationRow },
   informalEducation: Array.from({ length: 2 }, () => ({ ...emptyInformalEducationRow })),

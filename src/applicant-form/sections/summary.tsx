@@ -17,6 +17,7 @@ import { ReviewItem } from '../components/review-item'
 import { ReviewSection } from '../components/review-section'
 import {
   captionLabelClass,
+  DRIVER_LICENSE_OPTIONS,
   FAMILY_ROWS,
   formatDateDisplay,
   LAST_EDUCATION_OPTIONS,
@@ -42,6 +43,11 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
   const religion = includes(RELIGION_OPTIONS, values.religion)
     ? t(`options.religion.${values.religion}`)
     : values.religion
+  const driverLicense = values.driverLicense
+    .map((item) =>
+      includes(DRIVER_LICENSE_OPTIONS, item) ? t(`options.driverLicense.${item}`) : item,
+    )
+    .join(', ')
   const lastEducation = includes(LAST_EDUCATION_OPTIONS, values.lastEducation)
     ? t(`options.lastEducation.${values.lastEducation}`)
     : values.lastEducation
@@ -90,7 +96,7 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
           <ReviewItem label={t('fields.heightWeight')} value={values.heightWeight} />
           <ReviewItem label={t('fields.tshirtSize')} value={values.tshirtSize} />
           <ReviewItem label={t('fields.city')} value={values.city} />
-          <ReviewItem label={t('fields.driverLicense')} value={values.driverLicense} />
+          <ReviewItem label={t('fields.driverLicense')} value={driverLicense} />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <ReviewItem label={t('fields.addressIdCard')} value={values.addressIdCard} />

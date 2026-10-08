@@ -16,6 +16,17 @@ export const RELIGION_OPTIONS = [
   'Konghucu',
   'Lainnya',
 ] as const
+export const DRIVER_LICENSE_NONE = 'Tidak Punya'
+export const DRIVER_LICENSE_OPTIONS = [
+  'SIM A',
+  'SIM B1',
+  'SIM B1 Umum',
+  'SIM B2',
+  'SIM B2 Umum',
+  'SIM C',
+  'SIM D',
+  DRIVER_LICENSE_NONE,
+] as const
 export const LAST_EDUCATION_OPTIONS = ['S3', 'S2', 'S1', 'D3', 'D1', 'SMA', 'SMP', 'SD'] as const
 
 export const FAMILY_ROWS: Array<{
