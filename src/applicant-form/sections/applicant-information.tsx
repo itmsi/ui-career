@@ -4,7 +4,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { FieldDescription, FieldGroup } from '@/components/ui/field'
 
 import { DatePickerField } from '../components/date-picker-field'
-import { SelectField, TextField } from '../components/form-fields'
+import { DriverLicenseField, SelectField, TextField } from '../components/form-fields'
 import {
   BLOOD_TYPE_OPTIONS,
   MARITAL_STATUS_OPTIONS,
@@ -124,12 +124,8 @@ export function ApplicantInformationSection() {
           placeholder={t('placeholders.taxId')}
           maxLength={20}
         />
-        <TextField
-          name="driverLicense"
-          label={t('fields.driverLicense')}
-          placeholder={t('placeholders.driverLicense')}
-        />
         <TextField name="city" label={t('fields.city')} />
+        <DriverLicenseField className="sm:col-span-2" label={t('fields.driverLicense')} />
       </div>
     </FieldGroup>
   )

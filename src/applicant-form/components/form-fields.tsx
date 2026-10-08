@@ -3,7 +3,9 @@ import { useController, type FieldError as RhfFieldError, type FieldPath } from 
 import { useTranslation } from 'react-i18next'
 
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -15,7 +17,12 @@ import { Textarea } from '@/components/ui/textarea'
 import type { TranslationKey } from '@/i18n/use-language'
 import { cn } from '@/lib/utils'
 
-import { captionLabelClass, inputHeightClass } from '../form-utils'
+import {
+  captionLabelClass,
+  DRIVER_LICENSE_NONE,
+  DRIVER_LICENSE_OPTIONS,
+  inputHeightClass,
+} from '../form-utils'
 import type { ApplicantFormValues } from '../types'
 
 type FieldName = FieldPath<ApplicantFormValues>
@@ -126,7 +133,10 @@ export function SelectField({
   className?: string
 }) {
   const { t } = useTranslation()
-  const items = options.map((option) => ({ value: option, label: optionLabel(option) }))
+  const items = options.map((option) => ({
+    value: option,
+    label: optionLabel(option),
+  }))
   const {
     field: { ref, ...field },
     fieldState,
@@ -164,6 +174,43 @@ export function SelectField({
         </SelectContent>
       </Select>
       <FormFieldError error={fieldState.error} />
+    </Field>
+  )
+}
+
+export function DriverLicenseField({ label, className }: { label: ReactNode; className?: string }) {
+  const { field } = useController<ApplicantFormValues, 'driverLicense'>({
+    name: 'driverLicense',
+  })
+  const { t } = useTranslation()
+  const selected: string[] = field.value ?? []
+
+  return (
+    <Field className={className}>
+      <FieldCaption>{label}</FieldCaption>
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-2 rounded-xl border border-border/70 p-4">
+        {DRIVER_LICENSE_OPTIONS.map((option) => (
+          <Label key={option} className="flex items-center gap-2 text-sm">
+            <Checkbox
+              checked={selected.includes(option)}
+              onCheckedChange={(checked) => {
+                // "Tidak Punya" is exclusive: picking it clears the licences, and vice versa.
+                if (!checked) {
+                  field.onChange(selected.filter((item) => item !== option))
+                } else if (option === DRIVER_LICENSE_NONE) {
+                  field.onChange([DRIVER_LICENSE_NONE])
+                } else {
+                  field.onChange([
+                    ...selected.filter((item) => item !== DRIVER_LICENSE_NONE),
+                    option,
+                  ])
+                }
+              }}
+            />
+            {t(`options.driverLicense.${option}`)}
+          </Label>
+        ))}
+      </div>
     </Field>
   )
 }

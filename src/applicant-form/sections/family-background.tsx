@@ -23,8 +23,13 @@ export function FamilyBackgroundSection() {
             label={t('fields.age')}
             inputMode="numeric"
             maxLength={3}
+            required={row.required}
           />
-          <TextField name={`family.${row.key}.employment`} label={t('fields.employment')} />
+          <TextField
+            name={`family.${row.key}.employment`}
+            label={t('fields.employment')}
+            required={row.required}
+          />
           <TextField
             name={`family.${row.key}.emergencyContact`}
             label={t('fields.emergencyContactNumber')}
