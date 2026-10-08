@@ -94,7 +94,7 @@ export const en: TranslationMessages = {
     videoInterview: {
       title: 'Video Interview',
       description:
-        'Answer each question by recording a video. Once you enter this step, you cannot go back to change your form data.',
+        'Answer each question by recording a video. Once the interview has started, you cannot go back to change your form data.',
     },
     review: {
       title: 'Review & Summary',

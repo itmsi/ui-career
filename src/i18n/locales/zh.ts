@@ -92,7 +92,7 @@ export const zh: TranslationMessages = {
     videoInterview: {
       title: '视频面试',
       description:
-        '请通过录制视频回答每个问题。进入此步骤后，您将无法返回修改表单数据。',
+        '请通过录制视频回答每个问题。面试开始后，您将无法返回修改表单数据。',
     },
     review: {
       title: '核对与汇总',

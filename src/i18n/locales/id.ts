@@ -96,7 +96,7 @@ export const id = {
     videoInterview: {
       title: 'Wawancara Video',
       description:
-        'Jawab setiap pertanyaan dengan merekam video. Setelah masuk ke langkah ini, Anda tidak dapat kembali mengubah data formulir.',
+        'Jawab setiap pertanyaan dengan merekam video. Setelah wawancara dimulai, Anda tidak dapat kembali mengubah data formulir.',
     },
     review: {
       title: 'Review & Ringkasan',

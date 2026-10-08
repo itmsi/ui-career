@@ -20,10 +20,12 @@ export function VideoInterviewSection({
   token,
   fullName,
   onQuestionCount,
+  onStarted,
 }: {
   token: string
   fullName: string
   onQuestionCount: (total: number) => void
+  onStarted: () => void
 }) {
   const { t } = useTranslation()
   const {
@@ -94,6 +96,7 @@ export function VideoInterviewSection({
         questions={state.questions}
         answeredQuestionIds={fields.map((field) => field.id_question)}
         onAnswered={(content) => append(content)}
+        onStarted={onStarted}
       />
       <FormFieldError error={errors.applicantFormContents?.root ?? errors.applicantFormContents} />
     </div>

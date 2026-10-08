@@ -85,6 +85,7 @@ export function ApplicantForm({
   const [navCollapsed, setNavCollapsed] = useState(false)
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
   const [interviewTotal, setInterviewTotal] = useState<number | null>(null)
+  const [interviewStarted, setInterviewStarted] = useState(false)
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // Files picked but not uploaded yet, registered by the upload fields of the current step.
   const [pendingUploads] = useState(() => {
@@ -147,13 +148,14 @@ export function ApplicantForm({
     reset(defaultValues)
     setStep(0)
     setInterviewTotal(null)
+    setInterviewStarted(false)
     setSubmitted(true)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const reviewValues = watch()
-  const interviewComplete =
-    interviewTotal !== null && (reviewValues.applicantFormContents?.length ?? 0) >= interviewTotal
+  const interviewAnswerCount = reviewValues.applicantFormContents?.length ?? 0
+  const interviewComplete = interviewTotal !== null && interviewAnswerCount >= interviewTotal
 
   const interviewSteps: FormStep[] = VIDEO_INTERVIEW_ENABLED
     ? [
@@ -162,12 +164,13 @@ export function ApplicantForm({
           description: t('steps.videoInterview.description'),
           fields: ['applicantFormContents'],
           blocked: !interviewComplete,
-          locksPrevious: true,
+          locksPrevious: interviewStarted || interviewAnswerCount > 0,
           content: (
             <VideoInterviewSection
               token={token}
               fullName={reviewValues.fullName || invitation.full_name}
               onQuestionCount={setInterviewTotal}
+              onStarted={() => setInterviewStarted(true)}
             />
           ),
         },
