@@ -347,24 +347,55 @@ export const en: TranslationMessages = {
       questionsInvalid: 'The question list could not be loaded correctly. Please contact our team.',
       retry: 'Try again',
     },
+    duration: {
+      minutes: '{{value}} min',
+      seconds: '{{value}} sec',
+    },
     intro: {
       greeting: 'Hello, {{name}}',
       description:
         'You will answer several questions by recording a video. Please read the following.',
-      ruleQuestions: 'There are {{count}} questions, answered one at a time.',
+      prepareTitle: 'Before you start, make sure:',
+      readyTitle: 'Readiness',
+      ready:
+        'You are in a quiet place with enough light, your face is clearly visible on camera, and you are ready to answer without interruption.',
+      connectionTitle: 'Connection',
+      connection:
+        'A stable internet connection throughout the interview. Each answer is uploaded after you submit it, so do not close or reload the page while recording or uploading.',
+      deviceTitle: 'Device',
+      device:
+        'Your camera and microphone work, access is allowed, and no other app is using them. Use the latest version of Chrome, Edge, Firefox, or Safari, and make sure your battery is charged or the device is plugged in.',
+      rulesTitle: 'Interview rules',
+      ruleQuestions:
+        'There are {{count}} questions, answered one at a time. Each question appears when recording starts.',
       ruleTime:
-        'Each question has preparation time and a recording time limit. The question appears when recording starts.',
+        'Limited time: each question has {{prep}} of preparation time and up to {{max}} of recording time. Recording stops automatically when time runs out.',
       ruleRerecord: 'You can re-record your answer before submitting it.',
       ruleNoBack:
         'Once an answer is submitted, you cannot change it or go back to a previous question.',
-      ruleLocked: 'Once you start the interview, you cannot go back to change your form data.',
+      ruleClarity:
+        'Speak clearly and calmly, loud enough to be heard, and keep your face visible while recording.',
       ruleLanguage: 'You may answer in Indonesian, English, or Mandarin.',
+      lockedTitle: 'Important: you cannot go back to previous steps',
+      lockedWarning:
+        'Once you press Continue, the form steps you have already completed can no longer be opened or changed. Until then, you can still go back to check your data.',
       consentTitle: 'Consent',
       consent:
         'I consent to having my video and voice recorded, stored, and processed by the company for recruitment purposes. I understand that the recording may be used for evaluation and assessment during the selection process.',
       consentLabel: 'I have read and agree to the terms above.',
       consentRequired: 'Tick the consent box to continue.',
       continue: 'Continue',
+      factQuestions: 'Questions',
+      factPrep: 'Preparation time',
+      factAnswer: 'Max. answer time per question',
+      factNoBack: 'No going back once started',
+      confirmTitle: 'Start the interview now?',
+      confirmDescription: 'Make sure you are ready. Once you start:',
+      confirmNoBack: 'You cannot go back to previous form steps to change your data.',
+      confirmTime: 'Each question is timed: up to {{max}} to answer.',
+      confirmDevice: 'Your browser will ask for permission to use the camera and microphone.',
+      confirmCancel: 'Check my data first',
+      confirmStart: 'Yes, start the interview',
     },
     device: {
       title: 'Check Camera & Microphone',
@@ -407,14 +438,17 @@ export const en: TranslationMessages = {
       timeUp: 'Preparation time is up. Press Start when you are ready.',
       start: 'Start Recording',
       rerecordHint: 'You are re-recording this answer. Press the button when you are ready.',
+      answerTime: 'Up to {{max}} to answer',
+      startNotice:
+        'When you press Start Recording, the question appears and recording begins immediately.',
     },
     record: {
       recording: 'Recording',
       timeLeft: 'Time left',
       elapsed: 'Elapsed',
       finish: 'Finish Recording',
-      tenSeconds: '10 seconds left',
       questionLabel: 'Question',
+      secondsLeft: '{{seconds}} seconds left',
     },
     review: {
       title: 'Review Your Answer',
@@ -424,6 +458,7 @@ export const en: TranslationMessages = {
       rerecord: 'Record Again',
       rerecordLimit: 'The re-record limit has been reached.',
       playbackFailed: 'This browser cannot play the recording, but you can still submit it.',
+      finalNotice: 'A submitted answer cannot be changed.',
     },
     upload: {
       title: 'Submitting Your Answer',

@@ -9,8 +9,6 @@ import { formatClock, useCountdown } from '../hooks/use-countdown'
 import { RecorderUnsupportedError, startRecording, type Recording } from '../recorder'
 import type { RecordingResult } from '../types'
 
-const WARNING_SECONDS = 10
-
 export function RecordScreen({
   stream,
   questionText,
@@ -65,16 +63,17 @@ export function RecordScreen({
     seconds: maxSeconds,
     onExpire: () => void finish(),
   })
-  const warning = remainingSeconds <= WARNING_SECONDS
+  const warningSeconds = maxSeconds >= 60 ? 30 : 10
+  const warning = remainingSeconds <= warningSeconds
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-xl border border-border bg-white/60 p-5">
+    <div className="grid gap-5 md:grid-cols-2 md:items-start">
+      <section className="rounded-xl border border-primary/40 bg-primary/5 p-5 md:col-start-1 md:row-start-1">
         <p className="mb-2 text-xs font-semibold text-primary">{t('videoInterview.record.questionLabel')}</p>
-        <p className="font-heading text-lg leading-snug font-semibold sm:text-xl">{questionText}</p>
+        <p className="font-heading text-xl leading-snug font-semibold sm:text-2xl">{questionText}</p>
       </section>
 
-      <div className="relative">
+      <div className="relative md:col-start-2 md:row-span-3 md:row-start-1">
         <CameraPreview stream={stream} />
         <span className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white">
           <span aria-hidden className="size-2 animate-pulse rounded-full bg-red-500" />
@@ -82,7 +81,7 @@ export function RecordScreen({
         </span>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 md:col-start-1 md:row-start-2">
         <div className="flex items-end justify-between gap-3">
           <div>
             <p className="text-[12.5px] font-semibold text-foreground/80">
@@ -115,11 +114,19 @@ export function RecordScreen({
           />
         </div>
         <p role="status" className={cn('min-h-5 text-sm', warning && 'font-semibold text-destructive')}>
-          {remainingSeconds === WARNING_SECONDS ? t('videoInterview.record.tenSeconds') : ''}
+          {remainingSeconds === warningSeconds
+            ? t('videoInterview.record.secondsLeft', { seconds: warningSeconds })
+            : ''}
         </p>
       </div>
 
-      <Button type="button" size="lg" onClick={() => void finish()} disabled={elapsedSeconds < 1}>
+      <Button
+        type="button"
+        size="lg"
+        onClick={() => void finish()}
+        disabled={elapsedSeconds < 1}
+        className="justify-self-start md:col-start-1 md:row-start-3"
+      >
         {t('videoInterview.record.finish')}
       </Button>
     </div>
