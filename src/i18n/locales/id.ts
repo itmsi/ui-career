@@ -363,24 +363,55 @@ export const id = {
         'Daftar pertanyaan tidak dapat dimuat dengan benar. Silakan hubungi tim kami.',
       retry: 'Coba lagi',
     },
+    duration: {
+      minutes: '{{value}} menit',
+      seconds: '{{value}} detik',
+    },
     intro: {
       greeting: 'Halo, {{name}}',
       description:
         'Anda akan menjawab beberapa pertanyaan dengan merekam video. Mohon baca ketentuan berikut.',
-      ruleQuestions: 'Ada {{count}} pertanyaan yang dijawab satu per satu.',
+      prepareTitle: 'Sebelum memulai, pastikan:',
+      readyTitle: 'Kesiapan',
+      ready:
+        'Anda berada di tempat yang tenang dengan pencahayaan cukup, wajah terlihat jelas di kamera, dan siap menjawab tanpa gangguan.',
+      connectionTitle: 'Koneksi',
+      connection:
+        'Internet stabil selama wawancara. Setiap jawaban diunggah setelah Anda mengirimnya, jadi jangan menutup atau memuat ulang halaman saat merekam atau mengunggah.',
+      deviceTitle: 'Perangkat',
+      device:
+        'Kamera dan mikrofon berfungsi, izin aksesnya diberikan, dan tidak sedang dipakai aplikasi lain. Gunakan versi terbaru Chrome, Edge, Firefox, atau Safari, dan pastikan baterai cukup atau perangkat tersambung ke daya.',
+      rulesTitle: 'Ketentuan wawancara',
+      ruleQuestions:
+        'Ada {{count}} pertanyaan yang dijawab satu per satu. Pertanyaan baru tampil saat rekaman dimulai.',
       ruleTime:
-        'Setiap pertanyaan memiliki waktu persiapan dan batas waktu merekam. Pertanyaan baru tampil saat rekaman dimulai.',
+        'Waktu terbatas: setiap pertanyaan memiliki waktu persiapan {{prep}} dan waktu merekam maksimal {{max}}. Rekaman berhenti otomatis saat waktu habis.',
       ruleRerecord: 'Anda dapat merekam ulang jawaban sebelum mengirimnya.',
       ruleNoBack:
         'Setelah jawaban dikirim, Anda tidak dapat mengubahnya atau kembali ke pertanyaan sebelumnya.',
-      ruleLocked: 'Setelah memulai wawancara, Anda tidak dapat kembali mengubah data formulir.',
+      ruleClarity:
+        'Berbicaralah dengan jelas dan tidak terburu-buru, dengan suara yang cukup keras, dan pastikan wajah Anda tetap terlihat selama merekam.',
       ruleLanguage: 'Anda dapat menjawab dalam Bahasa Indonesia, Inggris, atau Mandarin.',
+      lockedTitle: 'Penting: Anda tidak dapat kembali ke langkah sebelumnya',
+      lockedWarning:
+        'Setelah Anda menekan Lanjut, seluruh langkah formulir yang sudah Anda isi tidak dapat dibuka atau diubah lagi. Selama belum menekan Lanjut, Anda masih dapat kembali untuk memeriksa data Anda.',
       consentTitle: 'Persetujuan',
       consent:
         'Saya menyetujui bahwa video dan suara saya akan direkam, disimpan, dan diproses oleh perusahaan untuk keperluan proses rekrutmen. Saya memahami bahwa rekaman tersebut dapat digunakan untuk evaluasi dan penilaian selama proses seleksi.',
       consentLabel: 'Saya telah membaca dan menyetujui ketentuan di atas.',
       consentRequired: 'Centang persetujuan untuk melanjutkan.',
       continue: 'Lanjut',
+      factQuestions: 'Pertanyaan',
+      factPrep: 'Waktu persiapan',
+      factAnswer: 'Maks. waktu menjawab per pertanyaan',
+      factNoBack: 'Tidak bisa kembali setelah mulai',
+      confirmTitle: 'Mulai wawancara sekarang?',
+      confirmDescription: 'Pastikan Anda sudah siap. Setelah memulai:',
+      confirmNoBack: 'Anda tidak dapat kembali ke langkah formulir sebelumnya untuk mengubah data.',
+      confirmTime: 'Setiap pertanyaan dibatasi waktu: maksimal {{max}} untuk menjawab.',
+      confirmDevice: 'Browser akan meminta izin menggunakan kamera dan mikrofon.',
+      confirmCancel: 'Periksa data dulu',
+      confirmStart: 'Ya, mulai wawancara',
     },
     device: {
       title: 'Periksa Kamera & Mikrofon',
@@ -422,14 +453,17 @@ export const id = {
       timeUp: 'Waktu persiapan telah habis. Tekan Mulai bila Anda siap.',
       start: 'Mulai Rekam',
       rerecordHint: 'Anda merekam ulang jawaban ini. Tekan tombol bila sudah siap.',
+      answerTime: 'Waktu menjawab maksimal {{max}}',
+      startNotice:
+        'Saat Anda menekan Mulai Rekam, pertanyaan langsung muncul dan rekaman langsung berjalan.',
     },
     record: {
       recording: 'Merekam',
       timeLeft: 'Sisa waktu',
       elapsed: 'Terpakai',
       finish: 'Selesai Merekam',
-      tenSeconds: '10 detik tersisa',
       questionLabel: 'Pertanyaan',
+      secondsLeft: '{{seconds}} detik tersisa',
     },
     review: {
       title: 'Tinjau Jawaban',
@@ -439,6 +473,7 @@ export const id = {
       rerecord: 'Rekam Ulang',
       rerecordLimit: 'Batas rekam ulang telah tercapai.',
       playbackFailed: 'Rekaman tidak dapat diputar di browser ini, tetapi tetap dapat dikirim.',
+      finalNotice: 'Jawaban yang sudah dikirim tidak dapat diubah.',
     },
     upload: {
       title: 'Mengirim Jawaban',
