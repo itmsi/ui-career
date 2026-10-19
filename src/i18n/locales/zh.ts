@@ -26,6 +26,9 @@ export const zh: TranslationMessages = {
     linkInvalid: '该邀请链接已失效。',
     alreadySubmittedTitle: '表格已提交',
     alreadySubmitted: '此表格已填写提交，无法再次访问。',
+    invalidHelp: '请确认您打开的是邀请邮件中的完整链接。如问题持续，请联系我们的招聘团队。',
+    alreadySubmittedHelp: '您无需进行其他操作。如有需要，我们的团队将与您联系。',
+    retry: '重新加载',
   },
   form: {
     stepCounter: '第 {{current}} / {{total}} 步',
@@ -40,6 +43,7 @@ export const zh: TranslationMessages = {
     incomplete: '仍有必填信息未填写或格式不正确，请重新检查。',
     submittedTitle: '申请已提交',
     submittedDescription: '感谢您的申请，我们已收到。如有需要，我们的团队将与您联系。',
+    submittedHint: '您可以放心关闭此页面。',
     requiredLegend: '标有 <mark>*</mark> 的字段为必填项。',
   },
   nav: {

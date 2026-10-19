@@ -27,6 +27,11 @@ export const id = {
     linkInvalid: 'Link undangan sudah tidak valid.',
     alreadySubmittedTitle: 'Form Sudah Diisi',
     alreadySubmitted: 'Form ini sudah pernah diisi dan tidak dapat diakses kembali.',
+    invalidHelp:
+      'Pastikan Anda membuka tautan lengkap dari email undangan. Jika masalah berlanjut, hubungi tim rekrutmen kami.',
+    alreadySubmittedHelp:
+      'Tidak ada tindakan lain yang perlu Anda lakukan. Tim kami akan menghubungi Anda apabila diperlukan.',
+    retry: 'Muat ulang',
   },
   form: {
     stepCounter: 'Langkah {{current}} / {{total}}',
@@ -42,6 +47,7 @@ export const id = {
     submittedTitle: 'Lamaran Terkirim',
     submittedDescription:
       'Terima kasih, lamaran Anda sudah kami terima. Tim kami akan menghubungi Anda apabila diperlukan.',
+    submittedHint: 'Anda dapat menutup halaman ini dengan aman.',
     requiredLegend: 'Kolom bertanda <mark>*</mark> wajib diisi.',
   },
   nav: {
@@ -374,7 +380,7 @@ export const id = {
       prepareTitle: 'Sebelum memulai, pastikan:',
       readyTitle: 'Kesiapan',
       ready:
-        'Anda berada di tempat yang tenang dengan pencahayaan cukup, wajah terlihat jelas di kamera, dan siap menjawab tanpa gangguan.',
+        'Anda berada di tempat yang tenang dengan pencahayaan cukup, berpakaian rapi, wajah terlihat jelas di kamera, dan siap menjawab tanpa gangguan.',
       connectionTitle: 'Koneksi',
       connection:
         'Internet stabil selama wawancara. Setiap jawaban diunggah setelah Anda mengirimnya, jadi jangan menutup atau memuat ulang halaman saat merekam atau mengunggah.',

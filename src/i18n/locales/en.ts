@@ -25,6 +25,11 @@ export const en: TranslationMessages = {
     linkInvalid: 'This invitation link is no longer valid.',
     alreadySubmittedTitle: 'Form Already Submitted',
     alreadySubmitted: 'This form has already been filled in and can no longer be accessed.',
+    invalidHelp:
+      'Make sure you opened the complete link from your invitation email. If the problem continues, contact our recruitment team.',
+    alreadySubmittedHelp:
+      'There is nothing else you need to do. Our team will contact you if needed.',
+    retry: 'Reload',
   },
   form: {
     stepCounter: 'Step {{current}} / {{total}}',
@@ -40,6 +45,7 @@ export const en: TranslationMessages = {
     submittedTitle: 'Application Submitted',
     submittedDescription:
       'Thank you, we have received your application. Our team will contact you if needed.',
+    submittedHint: 'You can safely close this page.',
     requiredLegend: 'Fields marked <mark>*</mark> are required.',
   },
   nav: {
