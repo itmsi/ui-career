@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { format } from 'date-fns'
-import { Send } from 'lucide-react'
+import { CircleCheck, Send } from 'lucide-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   FormProvider,
@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { CardDescription, CardTitle } from '@/components/ui/card'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { cn } from '@/lib/utils'
 import { ApiError } from '@/lib/api-client'
@@ -22,6 +22,7 @@ import { VIDEO_INTERVIEW_ENABLED } from '@/video-interview/config'
 import { submitApplicantForm, type InvitationVerifyResponse } from './api'
 import { FormNav } from './components/form-nav'
 import { PendingUploadDialog } from './components/pending-upload-dialog'
+import { StatusScreen } from './components/status-screen'
 import { DRAFT_STORAGE_KEY, STEP_STORAGE_KEY, loadDraftStep, loadDraftValues } from './form-utils'
 import { AdditionalDocumentsSection } from './sections/additional-documents'
 import { ApplicantInformationSection } from './sections/applicant-information'
@@ -350,15 +351,12 @@ export function ApplicantForm({
 
   if (submitted) {
     return (
-      <div className="relative mx-auto flex h-svh w-full max-w-md items-center p-4 sm:p-6">
-        <LanguageSwitcher className="absolute top-4 right-4" />
-        <Card className="w-full">
-          <CardHeader className="px-8 py-6">
-            <CardTitle>{t('form.submittedTitle')}</CardTitle>
-            <CardDescription>{t('form.submittedDescription')}</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+      <StatusScreen
+        icon={CircleCheck}
+        title={t('form.submittedTitle')}
+        description={t('form.submittedDescription')}
+        hint={t('form.submittedHint')}
+      />
     )
   }
 

@@ -143,7 +143,7 @@ export function VideoInterview({
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="w-full space-y-6">
       {activePhase !== 'intro' && (
         <QuestionProgress current={index + 1} total={questions.length} />
       )}
@@ -152,6 +152,8 @@ export function VideoInterview({
         <IntroScreen
           fullName={fullName}
           totalQuestions={questions.length}
+          prepSeconds={Math.max(...questions.map((item) => item.prepSeconds))}
+          maxSeconds={Math.max(...questions.map((item) => item.maxSeconds))}
           onContinue={() => {
             onStarted()
             setPhase('device')
@@ -173,6 +175,7 @@ export function VideoInterview({
         <PrepareScreen
           stream={media.stream}
           prepSeconds={question.prepSeconds}
+          maxSeconds={question.maxSeconds}
           showCountdown={rerecordsUsed === 0}
           onStart={() => setPhase('record')}
         />

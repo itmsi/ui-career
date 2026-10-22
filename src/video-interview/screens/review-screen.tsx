@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { RotateCcw, Send } from 'lucide-react'
+import { Lock, RotateCcw, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { Button } from '@/components/ui/button'
@@ -58,6 +58,11 @@ export function ReviewScreen({
           {t('videoInterview.review.playbackFailed')}
         </p>
       )}
+
+      <p className="flex items-center gap-2 text-sm font-medium text-foreground">
+        <Lock aria-hidden className="size-4 shrink-0 text-primary" />
+        {t('videoInterview.review.finalNotice')}
+      </p>
 
       <div className="flex flex-wrap items-center gap-3">
         <Button type="button" size="lg" onClick={onSubmit}>
