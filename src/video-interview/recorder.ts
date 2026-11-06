@@ -1,3 +1,4 @@
+import { AUDIO_BITS_PER_SECOND, VIDEO_BITS_PER_SECOND } from './config'
 import type { RecordedMedia, RecordingResult } from './types'
 
 const VIDEO_MIME_CANDIDATES = [
@@ -37,9 +38,10 @@ function startChunkRecorder(
   source: MediaStream,
   candidates: string[],
   fallbackType: string,
+  bitrates: Pick<MediaRecorderOptions, 'videoBitsPerSecond' | 'audioBitsPerSecond'>,
 ): ChunkRecorder {
   const mimeType = candidates.find((type) => MediaRecorder.isTypeSupported(type))
-  const recorder = new MediaRecorder(source, mimeType ? { mimeType } : undefined)
+  const recorder = new MediaRecorder(source, { mimeType, ...bitrates })
   const chunks: Blob[] = []
 
   const finished = new Promise<RecordedMedia>((resolve, reject) => {
@@ -66,10 +68,18 @@ export function startRecording(stream: MediaStream): Recording {
   if (!recorderSupported()) throw new RecorderUnsupportedError()
 
   const startedAt = performance.now()
-  const video = startChunkRecorder(stream, VIDEO_MIME_CANDIDATES, 'video/webm')
+  const video = startChunkRecorder(stream, VIDEO_MIME_CANDIDATES, 'video/webm', {
+    videoBitsPerSecond: VIDEO_BITS_PER_SECOND,
+    audioBitsPerSecond: AUDIO_BITS_PER_SECOND,
+  })
   let audio: ChunkRecorder
   try {
-    audio = startChunkRecorder(new MediaStream(stream.getAudioTracks()), AUDIO_MIME_CANDIDATES, 'audio/webm')
+    audio = startChunkRecorder(
+      new MediaStream(stream.getAudioTracks()),
+      AUDIO_MIME_CANDIDATES,
+      'audio/webm',
+      { audioBitsPerSecond: AUDIO_BITS_PER_SECOND },
+    )
   } catch (error) {
     stopRecorder(video)
     throw error

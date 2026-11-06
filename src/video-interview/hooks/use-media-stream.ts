@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { VIDEO_CONSTRAINTS } from '../config'
 import type { MediaErrorKind } from '../types'
 
 function toMediaErrorKind(error: unknown): MediaErrorKind {
@@ -54,7 +55,10 @@ export function useMediaStream() {
 
     setRequesting(true)
     try {
-      const next = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      const next = await navigator.mediaDevices.getUserMedia({
+        video: VIDEO_CONSTRAINTS,
+        audio: true,
+      })
       if (!mountedRef.current) {
         next.getTracks().forEach((track) => track.stop())
         return

@@ -2,6 +2,14 @@ export const VIDEO_INTERVIEW_ENABLED = import.meta.env.VITE_ENABLE_VIDEO_INTERVI
 
 export const MAX_RERECORDS = 5
 
+export const VIDEO_CONSTRAINTS: MediaTrackConstraints = {
+  width: { ideal: 1280 },
+  height: { ideal: 720 },
+  frameRate: { ideal: 24 },
+}
+export const VIDEO_BITS_PER_SECOND = 1_000_000
+export const AUDIO_BITS_PER_SECOND = 96_000
+
 type QuestionTiming = { prepSeconds: number; maxSeconds: number }
 
 const FIRST_QUESTION_TIMING: QuestionTiming = { prepSeconds: 15, maxSeconds: 300 }
