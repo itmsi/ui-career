@@ -208,6 +208,10 @@ export const en: TranslationMessages = {
   },
   education: {
     cardTitle: 'Last Education - {{level}}',
+    historyTitle: 'Education - {{level}}',
+    historyHint:
+      'Fill in your education from your highest level down to elementary school. Levels without the Required badge can be left empty or removed if you did not attend them.',
+    addLevel: 'Add {{level}}',
   },
   family: {
     father: 'Father',

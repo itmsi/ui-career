@@ -210,6 +210,10 @@ export const id = {
   },
   education: {
     cardTitle: 'Pendidikan Terakhir - {{level}}',
+    historyTitle: 'Pendidikan - {{level}}',
+    historyHint:
+      'Isi riwayat pendidikan Anda dari jenjang tertinggi sampai SD. Jenjang tanpa tanda Wajib boleh dikosongkan atau dihapus bila tidak Anda tempuh.',
+    addLevel: 'Tambah riwayat {{level}}',
   },
   family: {
     father: 'Ayah',

@@ -1,6 +1,6 @@
 import { format, isValid, parseISO } from 'date-fns'
 
-import { defaultValues, type ApplicantFormValues, type YesNo } from './types'
+import { defaultValues, emptyEducationRow, type ApplicantFormValues, type YesNo } from './types'
 
 export const captionLabelClass = 'text-[12.5px] font-semibold text-foreground/80'
 export const inputHeightClass = 'h-10 rounded-md'
@@ -28,6 +28,61 @@ export const DRIVER_LICENSE_OPTIONS = [
   DRIVER_LICENSE_NONE,
 ] as const
 export const LAST_EDUCATION_OPTIONS = ['S3', 'S2', 'S1', 'D3', 'D1', 'SMA', 'SMP', 'SD'] as const
+export type EducationLevel = (typeof LAST_EDUCATION_OPTIONS)[number]
+export const OPTIONAL_EDUCATION_LEVELS = ['D3', 'D1'] as const
+export type OptionalEducationLevel = (typeof OPTIONAL_EDUCATION_LEVELS)[number]
+
+type EducationRowValues = {
+  schoolName: string
+  location: string
+  graduate: string
+  major: string
+  graduationYear: string
+}
+
+type EducationValues = {
+  lastEducation: string
+  education: Record<EducationLevel, EducationRowValues>
+  educationSkipped: readonly string[]
+}
+
+export function isOptionalEducationLevel(level: string): level is OptionalEducationLevel {
+  return (OPTIONAL_EDUCATION_LEVELS as readonly string[]).includes(level)
+}
+
+/** The selected level and every level below it, highest first. */
+export function educationLevelsFrom(lastEducation: string): EducationLevel[] {
+  const start = (LAST_EDUCATION_OPTIONS as readonly string[]).indexOf(lastEducation)
+  return start === -1 ? [] : LAST_EDUCATION_OPTIONS.slice(start)
+}
+
+/** D3 and D1 are optional unless they are the level the applicant selected. */
+export function isEducationLevelRequired(level: EducationLevel, lastEducation: string) {
+  return level === lastEducation || !isOptionalEducationLevel(level)
+}
+
+export function educationHasDegree(level: EducationLevel) {
+  return level !== 'SMA' && level !== 'SMP' && level !== 'SD'
+}
+
+export function educationHasMajor(level: EducationLevel) {
+  return level !== 'SMP' && level !== 'SD'
+}
+
+function isEducationRowEmpty(row: EducationRowValues) {
+  return Object.values(row).every((value) => !value.trim())
+}
+
+/** Rows that are validated and sent: required levels, plus optional ones the applicant kept and filled in. */
+export function educationEntries({ lastEducation, education, educationSkipped }: EducationValues) {
+  return educationLevelsFrom(lastEducation)
+    .filter(
+      (level) =>
+        isEducationLevelRequired(level, lastEducation) ||
+        (!educationSkipped.includes(level) && !isEducationRowEmpty(education[level])),
+    )
+    .map((level) => ({ level, row: education[level] }))
+}
 
 export const FAMILY_ROWS: Array<{
   key: keyof ApplicantFormValues['family']
@@ -132,13 +187,28 @@ function sanitizeInterviewContents(draft: unknown): ApplicantFormValues['applica
   return [...byQuestion.values()]
 }
 
+/**
+ * Drafts saved before education became one row per level hold a single row; it belongs
+ * to the level the applicant had selected.
+ */
+function migrateEducation(draft: Record<string, unknown>, values: ApplicantFormValues) {
+  const previous = draft.education
+  if (!isPlainObject(previous) || typeof previous.schoolName !== 'string') return values.education
+  const level = LAST_EDUCATION_OPTIONS.find((option) => option === values.lastEducation)
+  if (!level) return values.education
+  return { ...values.education, [level]: mergeDraft(emptyEducationRow, previous) }
+}
+
 export function loadDraftValues(): ApplicantFormValues {
   try {
     const raw = window.localStorage.getItem(DRAFT_STORAGE_KEY)
     if (!raw) return defaultValues
     const draft: unknown = JSON.parse(raw)
+    const values = mergeDraft(defaultValues, draft)
     return {
-      ...mergeDraft(defaultValues, draft),
+      ...values,
+      education: isPlainObject(draft) ? migrateEducation(draft, values) : values.education,
+      educationSkipped: values.educationSkipped.filter(isOptionalEducationLevel),
       applicantFormContents: sanitizeInterviewContents(
         isPlainObject(draft) ? draft.applicantFormContents : undefined,
       ),
