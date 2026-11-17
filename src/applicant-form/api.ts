@@ -1,7 +1,7 @@
 import { apiRequest } from '@/lib/api-client'
 import { VIDEO_INTERVIEW_ENABLED } from '@/video-interview/config'
 
-import { FAMILY_ROWS, SCREENING_QUESTIONS, yesNoLabel } from './form-utils'
+import { FAMILY_ROWS, SCREENING_QUESTIONS, educationEntries, yesNoLabel } from './form-utils'
 import type { AdditionalDocumentItem, ApplicantFormValues } from './types'
 
 export type InvitationVerifyResponse = {
@@ -137,17 +137,16 @@ function toApplicantFormPayload(values: ApplicantFormValues) {
     working_available_date: values.workingAvailableDate,
     relogion: values.religion,
     tshirt_size: values.tshirtSize,
-    // Only the last education is collected; its level (s3 … sd) is the school type.
-    educational_background: [
-      {
-        type_of_school: values.lastEducation.toLowerCase(),
-        name_of_school: values.education.schoolName,
-        location: values.education.location,
-        graduate: values.education.graduate,
-        major: values.education.major,
-        graduation_year: values.education.graduationYear,
-      },
-    ],
+    // One entry per level from the selected one down to SD; the level (s3 … sd) is the
+    // school type. Optional D3 / D1 rows are left out when removed or left empty.
+    educational_background: educationEntries(values).map(({ level, row }) => ({
+      type_of_school: level.toLowerCase(),
+      name_of_school: row.schoolName,
+      location: row.location,
+      graduate: row.graduate,
+      major: row.major,
+      graduation_year: row.graduationYear,
+    })),
     informal_education_special_qualification: values.informalEducation.map((row) => ({
       type_of_training: row.trainingName,
       institution_name: row.institutionName,

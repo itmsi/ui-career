@@ -21,9 +21,11 @@ import { ReviewSection } from '../components/review-section'
 import {
   captionLabelClass,
   DRIVER_LICENSE_OPTIONS,
+  educationEntries,
+  educationHasDegree,
+  educationHasMajor,
   FAMILY_ROWS,
   formatDateDisplay,
-  LAST_EDUCATION_OPTIONS,
   MARITAL_STATUS_OPTIONS,
   RELIGION_OPTIONS,
   SCREENING_QUESTIONS,
@@ -51,9 +53,6 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
       includes(DRIVER_LICENSE_OPTIONS, item) ? t(`options.driverLicense.${item}`) : item,
     )
     .join(', ')
-  const lastEducation = includes(LAST_EDUCATION_OPTIONS, values.lastEducation)
-    ? t(`options.lastEducation.${values.lastEducation}`)
-    : values.lastEducation
 
   const filledInformalEducation = values.informalEducation
     .map((row, index) => ({ row, index }))
@@ -112,24 +111,31 @@ export function SummarySection({ values }: { values: ApplicantFormValues }) {
       </ReviewSection>
 
       <ReviewSection icon={GraduationCap} title={t('steps.educationalHistory.title')}>
-        <EntryCard
-          index={1}
-          label={
-            lastEducation
-              ? t('education.cardTitle', { level: lastEducation })
-              : t('fields.lastEducation')
-          }
-          columns={5}
-        >
-          <ReviewItem label={t('fields.schoolName')} value={values.education.schoolName} />
-          <ReviewItem label={t('fields.location')} value={values.education.location} />
-          <ReviewItem label={t('fields.graduate')} value={values.education.graduate} />
-          <ReviewItem label={t('fields.major')} value={values.education.major} />
-          <ReviewItem
-            label={t('fields.graduationYear')}
-            value={values.education.graduationYear}
-          />
-        </EntryCard>
+        <div className="space-y-3">
+          {educationEntries(values).map(({ level, row }, index) => {
+            const levelLabel = t(`options.lastEducation.${level}`)
+            const hasDegree = educationHasDegree(level)
+            const hasMajor = educationHasMajor(level)
+            return (
+              <EntryCard
+                key={level}
+                index={index + 1}
+                label={
+                  index === 0
+                    ? t('education.cardTitle', { level: levelLabel })
+                    : t('education.historyTitle', { level: levelLabel })
+                }
+                columns={hasDegree ? 5 : hasMajor ? 4 : 3}
+              >
+                <ReviewItem label={t('fields.schoolName')} value={row.schoolName} />
+                <ReviewItem label={t('fields.location')} value={row.location} />
+                {hasDegree && <ReviewItem label={t('fields.graduate')} value={row.graduate} />}
+                {hasMajor && <ReviewItem label={t('fields.major')} value={row.major} />}
+                <ReviewItem label={t('fields.graduationYear')} value={row.graduationYear} />
+              </EntryCard>
+            )
+          })}
+        </div>
       </ReviewSection>
 
       <ReviewSection icon={Award} title={t('steps.informalEducation.title')}>

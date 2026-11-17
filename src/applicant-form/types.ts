@@ -4,7 +4,7 @@ import type { z } from 'zod'
 import type { applicantFormSchema } from './schema'
 
 export type ApplicantFormValues = z.infer<typeof applicantFormSchema>
-export type EducationRow = ApplicantFormValues['education']
+export type EducationRow = ApplicantFormValues['education']['S1']
 export type InformalEducationRow = ApplicantFormValues['informalEducation'][number]
 export type FamilyRow = ApplicantFormValues['family']['spouse']
 export type WorkExperienceRow = ApplicantFormValues['workExperience'][number]
@@ -12,7 +12,7 @@ export type ReferenceRow = ApplicantFormValues['references'][number]
 export type AdditionalDocumentItem = ApplicantFormValues['additionalDocuments'][number]
 export type YesNo = ApplicantFormValues['hasCriminalRecord']
 
-const emptyEducationRow: EducationRow = {
+export const emptyEducationRow: EducationRow = {
   schoolName: '',
   location: '',
   graduate: '',
@@ -72,7 +72,17 @@ export const defaultValues: ApplicantFormValues = {
   tshirtSize: '',
   driverLicense: [],
   lastEducation: '',
-  education: { ...emptyEducationRow },
+  education: {
+    S3: { ...emptyEducationRow },
+    S2: { ...emptyEducationRow },
+    S1: { ...emptyEducationRow },
+    D3: { ...emptyEducationRow },
+    D1: { ...emptyEducationRow },
+    SMA: { ...emptyEducationRow },
+    SMP: { ...emptyEducationRow },
+    SD: { ...emptyEducationRow },
+  },
+  educationSkipped: [],
   informalEducation: Array.from({ length: 2 }, () => ({ ...emptyInformalEducationRow })),
   family: {
     father: { ...emptyFamilyRow },

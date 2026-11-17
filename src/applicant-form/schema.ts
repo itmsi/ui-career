@@ -8,7 +8,10 @@ import {
   BLOOD_TYPE_OPTIONS,
   LAST_EDUCATION_OPTIONS,
   MARITAL_STATUS_OPTIONS,
+  OPTIONAL_EDUCATION_LEVELS,
   RELIGION_OPTIONS,
+  educationEntries,
+  educationHasDegree,
 } from './form-utils'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -45,15 +48,14 @@ const yesNo = z
   .enum(['', 'yes', 'no'])
   .refine((value): boolean => value !== '', 'validation.yesNoRequired')
 
-const educationSchema = z.object({
-  schoolName: requiredText('validation.schoolNameRequired'),
-  location: requiredText('validation.locationRequired'),
-  graduate: requiredText('validation.graduateRequired'),
-  major: requiredText('validation.majorRequired'),
-  graduationYear: requiredText('validation.graduationYearRequired').refine(
-    (value) => YEAR_PATTERN.test(value),
-    'validation.graduationYearFormat',
-  ),
+// Which levels must be filled depends on `lastEducation`, so the rules live in the
+// form-level refinement below rather than on the row.
+const educationRowSchema = z.object({
+  schoolName: z.string(),
+  location: z.string(),
+  graduate: z.string(),
+  major: z.string(),
+  graduationYear: z.string(),
 })
 
 const informalEducationRowSchema = z.object({
@@ -148,7 +150,17 @@ export const applicantFormSchema = z.object({
 
   // 2. Educational History
   lastEducation: requiredOption(LAST_EDUCATION_OPTIONS, 'validation.lastEducationRequired'),
-  education: educationSchema,
+  education: z.object({
+    S3: educationRowSchema,
+    S2: educationRowSchema,
+    S1: educationRowSchema,
+    D3: educationRowSchema,
+    D1: educationRowSchema,
+    SMA: educationRowSchema,
+    SMP: educationRowSchema,
+    SD: educationRowSchema,
+  }),
+  educationSkipped: z.array(z.enum(OPTIONAL_EDUCATION_LEVELS)),
 
   // 3. Informal Education and Special Qualification — semua tidak wajib
   informalEducation: z.array(informalEducationRowSchema),
@@ -226,6 +238,35 @@ export const applicantFormSchema = z.object({
   applicantSignature: z.string(),
   signatureLink: z.string(),
   signatureDate: z.string(),
-})
+}).superRefine(
+  (values, ctx) => {
+    const education = values?.education as Partial<typeof values.education> | undefined
+    if (!education || !Array.isArray(values.educationSkipped)) return
+    if (LAST_EDUCATION_OPTIONS.some((level) => typeof education[level] !== 'object')) return
+
+    for (const { level, row } of educationEntries(values)) {
+      const require = (field: keyof typeof row, message: TranslationKey) => {
+        if (isBlank(row[field])) ctx.addIssue({ code: 'custom', message, path: ['education', level, field] })
+      }
+      require('schoolName', 'validation.schoolNameRequired')
+      require('location', 'validation.locationRequired')
+      if (educationHasDegree(level)) {
+        require('graduate', 'validation.graduateRequired')
+        require('major', 'validation.majorRequired')
+      }
+      if (isBlank(row.graduationYear)) {
+        require('graduationYear', 'validation.graduationYearRequired')
+      } else if (!YEAR_PATTERN.test(row.graduationYear.trim())) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'validation.graduationYearFormat',
+          path: ['education', level, 'graduationYear'],
+        })
+      }
+    }
+  },
+  // Run even when other steps still have errors, so this step's own errors show up.
+  { when: () => true },
+)
 
 export type ApplicantFormSchema = typeof applicantFormSchema

@@ -204,6 +204,9 @@ export const zh: TranslationMessages = {
   },
   education: {
     cardTitle: '最高学历 - {{level}}',
+    historyTitle: '学历 - {{level}}',
+    historyHint: '请从最高学历开始填写至小学。未标注“必填”的学历如未就读，可留空或删除。',
+    addLevel: '添加 {{level}} 学历',
   },
   family: {
     father: '父亲',
